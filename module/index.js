@@ -297,7 +297,6 @@ var ClassicAPI = (function () {
     ClassicAPI.prototype.parseURL = function (unparsedURL) {
         var parsedURL = unparsedURL.replace(/{region}/g, region_e_TO_string(this.region));
         parsedURL = parsedURL.replace(/{endpoint}/g, region_e_TO_endpointString(this.region));
-        console.log(parsedURL);
         //if there are other params in the url :
         return parsedURL + (parsedURL.indexOf("?") > -1 ? "&" : "?") + "api_key=" + this.ApiKey;
     };
