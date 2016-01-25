@@ -1,0 +1,20 @@
+{
+  "name": "riot-api-nodejs",
+  "version": "1.0.0",
+  "description": "A NodeJS Library for Riot Games API",
+  "main": "index.js",
+  "dependencies": {
+    "es6-promise": "^3.0.2",
+    "request": "^2.67.0"
+  },
+  "devDependencies": {},
+  "keywords": [
+    "riot",
+    "api",
+    "League of Legends",
+    "riot games",
+    "LOL"
+  ],
+  "author": "Zafix <willys58l@gmail.com>",
+  "license": "MIT"
+}
