@@ -2,10 +2,6 @@
 // Project: https://developer.riotgames.com/
 // Library by : Luca Laissue <https://github.com/zafixlrp>
 
-///<reference path="./typings/request/request.d.ts"/>
-///<reference path="./typings/es6-promise/es6-promise.d.ts"/>
-///<reference path="./typings/riot-games-api/riot-games-api.d.ts"/>
-
 import * as request from "request";
 import {Promise} from "es6-promise";
 
