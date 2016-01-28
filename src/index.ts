@@ -96,6 +96,22 @@ export enum region_e{
     PBE
 }
 
+interface errorCode{
+    code: number,
+    message: string
+}
+
+const ERROR_CODES = {
+    400: "Bad request",
+    401: "Unauthorized",
+    404: "Not found",
+    415: "Unsupported media type",
+    429: "Rate limit exceeded",
+    500: "Internal server error",
+    503: "Service unavailable"
+}
+
+
 /**
     * Tournament API
     */
