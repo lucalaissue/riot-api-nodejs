@@ -86,6 +86,16 @@ function region_e_TO_string(param) {
     region_e[region_e["PBE"] = 10] = "PBE";
 })(exports.region_e || (exports.region_e = {}));
 var region_e = exports.region_e;
+var ERROR_CODES = {
+    400: "Bad request",
+    401: "Unauthorized",
+    403: "Forbidden",
+    404: "Not found",
+    415: "Unsupported media type",
+    429: "Rate limit exceeded",
+    500: "Internal server error",
+    503: "Service unavailable"
+};
 /**
     * Tournament API
     */
@@ -141,7 +151,7 @@ var TournamentAPI = (function () {
                     setTimeout(function () { _this.getJSON(url, method, data, callback); }, res.headers["retry-after"] * 1000);
                 }
                 else {
-                    fail(res.statusCode);
+                    fail({ code: res.statusCode, message: ERROR_CODES[res.statusCode] });
                 }
             });
         });
@@ -284,7 +294,7 @@ var ClassicAPI = (function () {
                     setTimeout(function () { _this.getJSON(url, callback); }, res.headers["retry-after"] * 1000);
                 }
                 else {
-                    fail(res.statusCode);
+                    fail({ code: res.statusCode, message: ERROR_CODES[res.statusCode] });
                 }
             });
         });
