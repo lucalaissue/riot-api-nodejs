@@ -1,9 +1,10 @@
 // NodeJS Library for Riot Games
 // Project: https://developer.riotgames.com/
 // Library by : Luca Laissue <https://github.com/zafixlrp>
+"use strict";
 var request = require("request");
 var es6_promise_1 = require("es6-promise");
-//ClassicURLS
+// ClassicURLS
 var URL_1_0 = "https://{region}.api.pvp.net/api/lol/{region}/v1.0/";
 var URL_1_2 = "https://{region}.api.pvp.net/api/lol/{region}/v1.2/";
 var URL_1_3 = "https://{region}.api.pvp.net/api/lol/{region}/v1.3/";
@@ -11,13 +12,13 @@ var URL_1_4 = "https://{region}.api.pvp.net/api/lol/{region}/v1.4/";
 var URL_2_2 = "https://{region}.api.pvp.net/api/lol/{region}/v2.2/";
 var URL_2_4 = "https://{region}.api.pvp.net/api/lol/{region}/v2.4/";
 var URL_2_5 = "https://{region}.api.pvp.net/api/lol/{region}/v2.5/";
-//ChampionMasteryURL
+// ChampionMasteryURL
 var CHAMPIONMASTERY_URL = "https://{region}.api.pvp.net/championmastery/location/{endpoint}/";
-//Statics Global URLS
+// Statics Global URLS
 var GLOBAL_URL_1_2 = "https://global.api.pvp.net/api/lol/static-data/{region}/v1.2/";
-//Spectator
+// Spectator
 var URL_SPECTATOR_1_0 = "https://{region}.api.pvp.net/observer-mode/rest/consumer/getSpectatorGameInfo/{endpoint}/";
-//Tournament ULRS
+// Tournament ULRS
 var TOURNAMENT_URL_1 = "https://global.api.pvp.net/tournament/public/v1/";
 function region_e_TO_endpointString(param) {
     switch (param) {
@@ -71,7 +72,7 @@ function region_e_TO_string(param) {
             return "pbe";
     }
 }
-//Regions List
+// Regions List
 (function (region_e) {
     region_e[region_e["BR"] = 0] = "BR";
     region_e[region_e["EUNE"] = 1] = "EUNE";
@@ -123,7 +124,7 @@ var TournamentAPI = (function () {
                 method: method,
                 headers: {
                     "User-Agent": "request",
-                    "Accept-Charset": "utf-8",
+                    "Accept-Charset": "ISO-8859-1, utf-8",
                     "X-Riot-Token": _this.ApiKey
                 },
                 json: true,
@@ -243,7 +244,7 @@ var TournamentAPI = (function () {
         });
     };
     return TournamentAPI;
-})();
+}());
 exports.TournamentAPI = TournamentAPI;
 var ClassicAPI = (function () {
     /**
@@ -271,7 +272,14 @@ var ClassicAPI = (function () {
         var _this = this;
         this.switchApiKey();
         return new es6_promise_1.Promise(function (success, fail) {
-            request(url, function (err, res, body) {
+            request({
+                url: url,
+                headers: {
+                    "User-Agent": "request",
+                    "Accept-Charset": "ISO-8859-1, utf-8"
+                },
+                json: true
+            }, function (err, res, body) {
                 if (res.statusCode == 200) {
                     try {
                         callback(JSON.parse(body));
@@ -1081,5 +1089,5 @@ var ClassicAPI = (function () {
         });
     };
     return ClassicAPI;
-})();
+}());
 exports.ClassicAPI = ClassicAPI;

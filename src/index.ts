@@ -5,7 +5,7 @@
 import * as request from "request";
 import {Promise} from "es6-promise";
 
-//ClassicURLS
+// ClassicURLS
 const URL_1_0: string = "https://{region}.api.pvp.net/api/lol/{region}/v1.0/";
 const URL_1_2: string = "https://{region}.api.pvp.net/api/lol/{region}/v1.2/";
 const URL_1_3: string = "https://{region}.api.pvp.net/api/lol/{region}/v1.3/";
@@ -14,16 +14,16 @@ const URL_2_2: string = "https://{region}.api.pvp.net/api/lol/{region}/v2.2/";
 const URL_2_4: string = "https://{region}.api.pvp.net/api/lol/{region}/v2.4/";
 const URL_2_5: string = "https://{region}.api.pvp.net/api/lol/{region}/v2.5/";
 
-//ChampionMasteryURL
+// ChampionMasteryURL
 const CHAMPIONMASTERY_URL: string = "https://{region}.api.pvp.net/championmastery/location/{endpoint}/";
 
-//Statics Global URLS
+// Statics Global URLS
 const GLOBAL_URL_1_2: string = "https://global.api.pvp.net/api/lol/static-data/{region}/v1.2/";
 
-//Spectator
+// Spectator
 const URL_SPECTATOR_1_0: string = "https://{region}.api.pvp.net/observer-mode/rest/consumer/getSpectatorGameInfo/{endpoint}/";
 
-//Tournament ULRS
+// Tournament ULRS
 const TOURNAMENT_URL_1: string = "https://global.api.pvp.net/tournament/public/v1/";
 
 function region_e_TO_endpointString(param: region_e){
@@ -81,7 +81,7 @@ function region_e_TO_string(param: region_e){
 }
 
 
-//Regions List
+// Regions List
 export enum region_e{
     BR,
     EUNE,
@@ -134,7 +134,7 @@ export class TournamentAPI {
                 method: method,
                 headers: {
                     "User-Agent": "request",
-                    "Accept-Charset": "utf-8",
+                    "Accept-Charset": "ISO-8859-1, utf-8",
                     "X-Riot-Token": this.ApiKey
                 },
                 json: true,
@@ -284,7 +284,14 @@ export class ClassicAPI {
     private getJSON(url: string, callback): any{
         this.switchApiKey();
         return new Promise((success, fail) => {
-            request(url, (err: any, res: any, body: string) => {
+            request({
+                url: url,
+                headers: {
+                    "User-Agent": "request",
+                    "Accept-Charset": "ISO-8859-1, utf-8"
+                },
+                json: true
+            }, (err: any, res: any, body: string) => {
                 if (res.statusCode == 200) {
                     try{
                         callback(JSON.parse(body));
