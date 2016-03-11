@@ -96,6 +96,23 @@ export enum region_e{
     PBE
 }
 
+interface errorCode{
+    code: number,
+    message: string
+}
+
+const ERROR_CODES = {
+    400: "Bad request",
+    401: "Unauthorized",
+    403: "Forbidden",
+    404: "Not found",
+    415: "Unsupported media type",
+    429: "Rate limit exceeded",
+    500: "Internal server error",
+    503: "Service unavailable"
+}
+
+
 /**
     * Tournament API
     */
@@ -149,7 +166,7 @@ export class TournamentAPI {
                 } else if (res.statusCode == 429){
                     setTimeout(() => {this.getJSON(url, method, data, callback)}, res.headers["retry-after"] * 1000);
                 } else {
-                    fail(res.statusCode);
+                    fail({code: res.statusCode, message: ERROR_CODES[res.statusCode]});
                 }
             });
         });
@@ -167,7 +184,7 @@ export class TournamentAPI {
         return new Promise((success, fail) => {
             this.getJSON(TOURNAMENT_URL_1 + "code?tournamentId=" + tournamentId + "&count=" + count, "post", params, (data: any) => {
                 callback(data);
-            }).catch((err) => {
+            }).catch((err: errorcode) => {
                 fail(err);
             });
         });
@@ -182,7 +199,7 @@ export class TournamentAPI {
         return new Promise((success, fail) => {
             this.getJSON(TOURNAMENT_URL_1 + "code?tournamentCode=" + tournamentCode, "get", {},(tournamentCodeDto: RiotGamesAPI.TournamentProvider.TournamentCodeDto) => {
                 callback(tournamentCodeDto);
-            }).catch((err) => {
+            }).catch((err: errorCode) => {
                 fail(err);
             });
         });
@@ -198,7 +215,7 @@ export class TournamentAPI {
         return new Promise((success, fail) => {
             this.getJSON(TOURNAMENT_URL_1 + "code/" + tournamentCode, "put", params,() => {
                 callback();
-            }).catch((err) => {
+            }).catch((err: errorCode) => {
                 fail(err);
             });
         });
@@ -213,7 +230,7 @@ export class TournamentAPI {
         return new Promise((success, fail) => {
             this.getJSON(TOURNAMENT_URL_1 + "lobby/events/by-code/" + tournamentCode, "get", {},(lobbyEvent: RiotGamesAPI.TournamentProvider.LobbyEventDto) => {
                 callback(lobbyEvent);
-            }).catch((err) => {
+            }).catch((err: errorCode) => {
                 fail(err);
             });
         });
@@ -229,7 +246,7 @@ export class TournamentAPI {
         return new Promise((success, fail) => {
             this.getJSON(TOURNAMENT_URL_1 + "provider", "post", {"region": region_e_TO_string(region), "url": url}, (data: any) => {
                 callback(data);
-            }).catch((err) => {
+            }).catch((err: errorCode) => {
                 fail(err);
             });
         });
@@ -245,7 +262,7 @@ export class TournamentAPI {
         return new Promise((success, fail) => {
             this.getJSON(TOURNAMENT_URL_1 + "tournament", "post",{"name": name, "providerId": providerId}, (data: any) => {
                 callback(data);
-            }).catch((err) => {
+            }).catch((err: errorCode) => {
                 fail(err);
             });
         });
@@ -301,7 +318,7 @@ export class ClassicAPI {
                 } else if (res.statusCode == 429){
                     setTimeout(() => {this.getJSON(url, callback)}, res.headers["retry-after"] * 1000);
                 } else {
-                    fail(res.statusCode);
+                    fail({code: res.statusCode, message: ERROR_CODES[res.statusCode]});
                 }
             });
         });
@@ -362,7 +379,7 @@ export class ClassicAPI {
         return new Promise((success, fail) => {
             this.getJSON(this.parseURL(URL_1_2 + "champion"), (champions: JSON) => {
                 callback(champions["champions"]);
-            }).catch((err) => {
+            }).catch((err: errorCode) => {
                 fail(err);
             });
         });
@@ -377,7 +394,7 @@ export class ClassicAPI {
         return new Promise((success, fail) => {
             this.getJSON(this.parseURL(URL_1_2 + "champion/" + id), (champion: RiotGamesAPI.Champion.ChampionDto) => {
                 callback(champion);
-            }).catch((err) => {
+            }).catch((err: errorCode) => {
                 fail(err);
             });
         });
@@ -391,7 +408,7 @@ export class ClassicAPI {
         return new Promise((success, fail) => {
             this.getJSON(this.parseURL(URL_1_2 + "champion?freeToPlay=true"), (champions: JSON) => {
                 callback(champions["champions"]);
-            }).catch((err) => {
+            }).catch((err: errorCode) => {
                 fail(err);
             });
         });
@@ -409,7 +426,7 @@ export class ClassicAPI {
         return new Promise((success, fail) => {
             this.getJSON(this.parseURL(CHAMPIONMASTERY_URL + "player/" + summonerId + "/champion/" + championId), (championMasteryDto: RiotGamesAPI.ChampionMastery.ChampionMasteryDto) => {
                 callback(championMasteryDto);
-            }).catch((err) => {
+            }).catch((err: errorCode) => {
                 fail(err);
             });
         });
@@ -424,7 +441,7 @@ export class ClassicAPI {
         return new Promise((success, fail) => {
             this.getJSON(this.parseURL(CHAMPIONMASTERY_URL + "player/" + summonerId + "/champions"), (championsMasteryDto: [RiotGamesAPI.ChampionMastery.ChampionMasteryDto]) => {
                 callback(championsMasteryDto);
-            }).catch((err) => {
+            }).catch((err: errorCode) => {
                 fail(err);
             });
         });
@@ -439,7 +456,7 @@ export class ClassicAPI {
         return new Promise((success, fail) => {
             this.getJSON(this.parseURL(CHAMPIONMASTERY_URL + "player/" + summonerId + "/score"), (score: number) => {
                 callback(score);
-            }).catch((err) => {
+            }).catch((err: errorCode) => {
                 fail(err);
             });
         });
@@ -454,7 +471,7 @@ export class ClassicAPI {
         return new Promise((success, fail) => {
             this.getJSON(this.parseURL(CHAMPIONMASTERY_URL + "player/" + summonerId + "/topchampions"), (championsMasteryDto: [RiotGamesAPI.ChampionMastery.ChampionMasteryDto]) => {
                 callback(championsMasteryDto);
-            }).catch((err) => {
+            }).catch((err: errorCode) => {
                 fail(err);
             });
         });
@@ -471,7 +488,7 @@ export class ClassicAPI {
         return new Promise((success, fail) => {
             this.getJSON(this.parseURL(URL_SPECTATOR_1_0 + summonerId), (gameInfo: RiotGamesAPI.CurrentGame.CurrentGameInfo) => {
                 callback(gameInfo);
-            }).catch((err) => {
+            }).catch((err: errorCode) => {
                 fail(err);
             });
         });
@@ -487,7 +504,7 @@ export class ClassicAPI {
         return new Promise((success, fail) => {
             this.getJSON(this.parseURL(URL_SPECTATOR_1_0 + "featured"), (featuredGames: RiotGamesAPI.FeaturedGames.FeaturedGames) => {
                 callback(featuredGames);
-            }).catch((err) => {
+            }).catch((err: errorCode) => {
                 fail(err);
             });
         });
@@ -504,7 +521,7 @@ export class ClassicAPI {
         return new Promise((success, fail) => {
             this.getJSON(this.parseURL(URL_1_3 + "game/by-summoner/" + summonerId + "/recent"), (RecentGames: RiotGamesAPI.Game.RecentGamesDto) => {
                 callback(RecentGames);
-            }).catch((err) => {
+            }).catch((err: errorCode) => {
                 fail(err);
             });
         });
@@ -521,7 +538,7 @@ export class ClassicAPI {
         return new Promise((success, fail) => {
             this.getJSON(this.parseURL(URL_2_5 + "league/by-summoner/" + summonerId), (League: RiotGamesAPI.League.LeagueDto) => {
                 callback(League[summonerId]);
-            }).catch((err) => {
+            }).catch((err: errorCode) => {
                 fail(err);
             });
         });
@@ -536,7 +553,7 @@ export class ClassicAPI {
         return new Promise((success, fail) => {
             this.getJSON(this.parseURL(URL_2_5 + "league/by-summoner/" + summonerId + "/entry"), (League: RiotGamesAPI.League.LeagueDto) => {
                 callback(League[summonerId]);
-            }).catch((err) => {
+            }).catch((err: errorCode) => {
                 fail(err);
             });
         });
@@ -551,7 +568,7 @@ export class ClassicAPI {
         return new Promise((success, fail) => {
             this.getJSON(this.parseURL(URL_2_5 + "league/by-team/" + teamId), (League: RiotGamesAPI.League.LeagueDto) => {
                 callback(League[teamId]);
-            }).catch((err) => {
+            }).catch((err: errorCode) => {
                 fail(err);
             });
         });
@@ -566,7 +583,7 @@ export class ClassicAPI {
         return new Promise((success, fail) => {
             this.getJSON(this.parseURL(URL_2_5 + "league/by-team/" + teamId + "/entry"), (League: RiotGamesAPI.League.LeagueDto) => {
                 callback(League[teamId]);
-            }).catch((err) => {
+            }).catch((err: errorCode) => {
                 fail(err);
             });
         });
@@ -580,7 +597,7 @@ export class ClassicAPI {
         return new Promise((success, fail) => {
             this.getJSON(this.parseURL(URL_2_5 + "league/challenger?type=RANKED_SOLO_5x5"), (League: RiotGamesAPI.League.LeagueDto) => {
                 callback(League);
-            }).catch((err) => {
+            }).catch((err: errorCode) => {
                 fail(err);
             });
         });
@@ -594,7 +611,7 @@ export class ClassicAPI {
         return new Promise((success, fail) => {
             this.getJSON(this.parseURL(URL_2_5 + "league/challenger?type=RANKED_TEAM_3x3"), (League: RiotGamesAPI.League.LeagueDto) => {
                 callback(League);
-            }).catch((err) => {
+            }).catch((err: errorCode) => {
                 fail(err);
             });
         });
@@ -608,7 +625,7 @@ export class ClassicAPI {
         return new Promise((success, fail) => {
             this.getJSON(this.parseURL(URL_2_5 + "league/challenger?type=RANKED_TEAM_5x5"), (League: RiotGamesAPI.League.LeagueDto) => {
                 callback(League);
-            }).catch((err) => {
+            }).catch((err: errorCode) => {
                 fail(err);
             });
         });
@@ -622,7 +639,7 @@ export class ClassicAPI {
         return new Promise((success, fail) => {
             this.getJSON(this.parseURL(URL_2_5 + "league/master?type=RANKED_SOLO_5x5"), (League: RiotGamesAPI.League.LeagueDto) => {
                 callback(League);
-            }).catch((err) => {
+            }).catch((err: errorCode) => {
                 fail(err);
             });
         });
@@ -636,7 +653,7 @@ export class ClassicAPI {
         return new Promise((success, fail) => {
             this.getJSON(this.parseURL(URL_2_5 + "league/master?type=RANKED_TEAM_3x3"), (League: RiotGamesAPI.League.LeagueDto) => {
                 callback(League);
-            }).catch((err) => {
+            }).catch((err: errorCode) => {
                 fail(err);
             });
         });
@@ -650,7 +667,7 @@ export class ClassicAPI {
         return new Promise((success, fail) => {
             this.getJSON(this.parseURL(URL_2_5 + "league/master?type=RANKED_TEAM_5x5"), (League: RiotGamesAPI.League.LeagueDto) => {
                 callback(League);
-            }).catch((err) => {
+            }).catch((err: errorCode) => {
                 fail(err);
             });
         });
@@ -666,7 +683,7 @@ export class ClassicAPI {
         return new Promise((success, fail) => {
             this.getJSON(this.parseURL(GLOBAL_URL_1_2 + "champion"), (championList: RiotGamesAPI.LolStaticData.ChampionListDto) => {
                 callback(championList);
-            }).catch((err) => {
+            }).catch((err: errorCode) => {
                 fail(err);
             });
         });
@@ -681,7 +698,7 @@ export class ClassicAPI {
         return new Promise((success, fail) => {
             this.getJSON(this.parseURL(GLOBAL_URL_1_2 + "champion/" + championsId), (champion: RiotGamesAPI.LolStaticData.ChampionDto) => {
                 callback(champion);
-            }).catch((err) => {
+            }).catch((err: errorCode) => {
                 fail(err);
             });
         });
@@ -695,7 +712,7 @@ export class ClassicAPI {
         return new Promise((success, fail) => {
             this.getJSON(this.parseURL(GLOBAL_URL_1_2 + "item"), (items: RiotGamesAPI.LolStaticData.ItemListDto) => {
                 callback(items);
-            }).catch((err) => {
+            }).catch((err: errorCode) => {
                 fail(err);
             });
         });
@@ -710,7 +727,7 @@ export class ClassicAPI {
         return new Promise((success, fail) => {
             this.getJSON(this.parseURL(GLOBAL_URL_1_2 + "item/" + itemId), (item: RiotGamesAPI.LolStaticData.ItemDto) => {
                 callback(item);
-            }).catch((err) => {
+            }).catch((err: errorCode) => {
                 fail(err);
             });
         });
@@ -724,7 +741,7 @@ export class ClassicAPI {
         return new Promise((success, fail) => {
             this.getJSON(this.parseURL(GLOBAL_URL_1_2 + "language-strings"), (languages: RiotGamesAPI.LolStaticData.LanguageStringsDto) => {
                 callback(languages);
-            }).catch((err) => {
+            }).catch((err: errorCode) => {
                 fail(err);
             });
         });
@@ -738,7 +755,7 @@ export class ClassicAPI {
         return new Promise((success, fail) => {
             this.getJSON(this.parseURL(GLOBAL_URL_1_2 + "languages"), (languages: string[]) => {
                 callback(languages);
-            }).catch((err) => {
+            }).catch((err: errorCode) => {
                 fail(err);
             });
         });
@@ -752,7 +769,7 @@ export class ClassicAPI {
         return new Promise((success, fail) => {
             this.getJSON(this.parseURL(GLOBAL_URL_1_2 + "map"), (maps: RiotGamesAPI.LolStaticData.MapDataDto) => {
                 callback(maps);
-            }).catch((err) => {
+            }).catch((err: errorCode) => {
                 fail(err);
             });
         });
@@ -766,7 +783,7 @@ export class ClassicAPI {
         return new Promise((success, fail) => {
             this.getJSON(this.parseURL(GLOBAL_URL_1_2 + "mastery"), (masteryList: RiotGamesAPI.LolStaticData.MasteryListDto) => {
                 callback(masteryList);
-            }).catch((err) => {
+            }).catch((err: errorCode) => {
                 fail(err);
             });
         });
@@ -781,7 +798,7 @@ export class ClassicAPI {
         return new Promise((success, fail) => {
             this.getJSON(this.parseURL(GLOBAL_URL_1_2 + "mastery/" + masteryId), (mastery: RiotGamesAPI.LolStaticData.MasteryDto) => {
                 callback(mastery);
-            }).catch((err) => {
+            }).catch((err: errorCode) => {
                 fail(err);
             });
         });
@@ -791,7 +808,7 @@ export class ClassicAPI {
         return new Promise((success, fail) => {
             this.getJSON(this.parseURL(GLOBAL_URL_1_2 + "realm"), (realm: RiotGamesAPI.LolStaticData.RealmDto) => {
                 callback(realm);
-            }).catch((err) => {
+            }).catch((err: errorCode) => {
                 fail(err);
             });
         });
@@ -805,7 +822,7 @@ export class ClassicAPI {
         return new Promise((success, fail) => {
             this.getJSON(this.parseURL(GLOBAL_URL_1_2 + "rune"), (runeList: RiotGamesAPI.LolStaticData.RuneListDto) => {
                 callback(runeList);
-            }).catch((err) => {
+            }).catch((err: errorCode) => {
                 fail(err);
             });
         });
@@ -820,7 +837,7 @@ export class ClassicAPI {
         return new Promise((success, fail) => {
             this.getJSON(this.parseURL(GLOBAL_URL_1_2 + "rune/" + runeId), (rune: RiotGamesAPI.LolStaticData.RuneDto) => {
                 callback(rune);
-            }).catch((err) => {
+            }).catch((err: errorCode) => {
                 fail(err);
             });
         });
@@ -834,7 +851,7 @@ export class ClassicAPI {
         return new Promise((success, fail) => {
             this.getJSON(this.parseURL(GLOBAL_URL_1_2 + "summoner-spell"), (summonerSpellList: RiotGamesAPI.LolStaticData.SummonerSpellListDto) => {
                 callback(summonerSpellList);
-            }).catch((err) => {
+            }).catch((err: errorCode) => {
                 fail(err);
             });
         });
@@ -849,7 +866,7 @@ export class ClassicAPI {
         return new Promise((success, fail) => {
             this.getJSON(this.parseURL(GLOBAL_URL_1_2 + "summoner-spell/" + summonerSpellId), (summonerSpell: RiotGamesAPI.LolStaticData.SummonerSpellDto) => {
                 callback(summonerSpell);
-            }).catch((err) => {
+            }).catch((err: errorCode) => {
                 fail(err);
             });
         });
@@ -863,7 +880,7 @@ export class ClassicAPI {
         return new Promise((success, fail) => {
             this.getJSON(this.parseURL(GLOBAL_URL_1_2 + "versions"), (versions: string[]) => {
                 callback(versions);
-            }).catch((err) => {
+            }).catch((err: errorCode) => {
                 fail(err);
             });
         });
@@ -879,7 +896,7 @@ export class ClassicAPI {
         return new Promise((success, fail) => {
             this.getJSON("http://status.leagueoflegends.com/shards", (shards: RiotGamesAPI.LolStatus.Shard[]) => {
                 callback(shards);
-            }).catch((err) => {
+            }).catch((err: errorCode) => {
                 fail(err);
             });
         });
@@ -894,7 +911,7 @@ export class ClassicAPI {
         return new Promise((success, fail) => {
             this.getJSON("http://status.leagueoflegends.com/shards/" + region_e_TO_string(region), (shard: RiotGamesAPI.LolStatus.Shard) => {
                 callback(shard);
-            }).catch((err) => {
+            }).catch((err: errorCode) => {
                 fail(err);
             });
         });
@@ -911,7 +928,7 @@ export class ClassicAPI {
         return new Promise((success, fail) => {
             this.getJSON(this.parseURL(URL_2_2 + "match/" + matchId), (matchDetail: RiotGamesAPI.Match.MatchDetail) => {
                 callback(matchDetail);
-            }).catch((err) => {
+            }).catch((err: errorCode) => {
                 fail(err);
             });
         });
@@ -926,7 +943,7 @@ export class ClassicAPI {
         return new Promise((success, fail) => {
             this.getJSON(this.parseURL(URL_2_2 + "match/by-tournament/" + tournamentCode + "/ids"), (matchIds: number[]) => {
                 callback(matchIds);
-            }).catch((err) => {
+            }).catch((err: errorCode) => {
                 fail(err);
             });
         });
@@ -941,7 +958,7 @@ export class ClassicAPI {
         return new Promise((success, fail) => {
             this.getJSON(this.parseURL(URL_2_2 + "match/for-tournament/" + matchId), (matchDetails: RiotGamesAPI.Match.MatchDetail) => {
                 callback(matchDetails);
-            }).catch((err) => {
+            }).catch((err: errorCode) => {
                 fail(err);
             });
         });
@@ -958,7 +975,7 @@ export class ClassicAPI {
         return new Promise((success, fail) => {
             this.getJSON(this.parseURL(URL_2_2 + "matchlist/by-summoner/" + summonerId), (matchList: RiotGamesAPI.MatchList.MatchList) => {
                 callback(matchList);
-            }).catch((err) => {
+            }).catch((err: errorCode) => {
                 fail(err);
             });
         });
@@ -975,7 +992,7 @@ export class ClassicAPI {
         return new Promise((success, fail) => {
             this.getJSON(this.parseURL(URL_1_3 + "stats/by-summoner/" + summonerId + "/ranked"), (rankedStats: RiotGamesAPI.Stats.RankedStatsDto) => {
                 callback(rankedStats);
-            }).catch((err) => {
+            }).catch((err: errorCode) => {
                 fail(err);
             });
         });
@@ -990,7 +1007,7 @@ export class ClassicAPI {
         return new Promise((success, fail) => {
             this.getJSON(this.parseURL(URL_1_3 + "stats/by-summoner/" + summonerId + "/summary"), (playerStatsSummaryList: RiotGamesAPI.Stats.PlayerStatsSummaryListDto) => {
                 callback(playerStatsSummaryList);
-            }).catch((err) => {
+            }).catch((err: errorCode) => {
                 fail(err);
             });
         });
@@ -1007,7 +1024,7 @@ export class ClassicAPI {
         return new Promise((success, fail) => {
             this.getJSON(this.parseURL(URL_1_4 + "summoner/by-name/" + summonerName), (summoner: RiotGamesAPI.Summoner.SummonerDto) => {
                 callback(summoner[summonerName]);
-            }).catch((err) => {
+            }).catch((err: errorCode) => {
                 fail(err);
             });
         });
@@ -1022,7 +1039,7 @@ export class ClassicAPI {
         return new Promise((success, fail) => {
             this.getJSON(this.parseURL(URL_1_4 + "summoner/" + summonerId), (summoner: RiotGamesAPI.Summoner.SummonerDto) => {
                 callback(summoner[summonerId]);
-            }).catch((err) => {
+            }).catch((err: errorCode) => {
                 fail(err);
             });
         });
@@ -1037,7 +1054,7 @@ export class ClassicAPI {
         return new Promise((success, fail) => {
             this.getJSON(this.parseURL(URL_1_4 + "summoner/" + summonerId + "/masteries"), (masteryPages: RiotGamesAPI.Summoner.MasteryPagesDto) => {
                 callback(masteryPages[summonerId]);
-            }).catch((err) => {
+            }).catch((err: errorCode) => {
                 fail(err);
             });
         });
@@ -1052,7 +1069,7 @@ export class ClassicAPI {
         return new Promise((success, fail) => {
             this.getJSON(this.parseURL(URL_1_4 + "summoner/" + summonerId + "/name"), (summonerName: JSON) => {
                 callback(summonerName[summonerId]);
-            }).catch((err) => {
+            }).catch((err: errorCode) => {
                 fail(err);
             });
         });
@@ -1067,7 +1084,7 @@ export class ClassicAPI {
         return new Promise((success, fail) => {
             this.getJSON(this.parseURL(URL_1_4 + "summoner/" + summonerId + "/runes"), (runePages: RiotGamesAPI.Summoner.RunePagesDto) => {
                 callback(runePages[summonerId]);
-            }).catch((err) => {
+            }).catch((err: errorCode) => {
                 fail(err);
             });
         });
@@ -1084,7 +1101,7 @@ export class ClassicAPI {
         return new Promise((success, fail) => {
             this.getJSON(this.parseURL(URL_2_4 + "team/by-summoner/" + summonerId), (teamList: RiotGamesAPI.Team.TeamDto) => {
                 callback(teamList[summonerId]);
-            }).catch((err) => {
+            }).catch((err: errorCode) => {
                 fail(err);
             });
         });
@@ -1099,7 +1116,7 @@ export class ClassicAPI {
         return new Promise((success, fail) => {
             this.getJSON(this.parseURL(URL_2_4 + "team/" + teamId), (team: RiotGamesAPI.Team.TeamDto) => {
                 callback(team[teamId]);
-            }).catch((err) => {
+            }).catch((err: errorCode) => {
                 fail(err);
             });
         });
