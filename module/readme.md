@@ -2,7 +2,7 @@
 <hr>
 
 ## Description
-*v1.0.1 - riot-api-nodejs*<br>
+*v1.0.3 - riot-api-nodejs*<br>
 A NodeJS Library for nodeJS
 
 ## Install
