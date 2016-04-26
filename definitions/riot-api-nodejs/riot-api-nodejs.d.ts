@@ -45,13 +45,13 @@ declare module "riot-api-nodejs"{
             */
         private getJSON(url, method, data, callback);
         /**
-            * get tournament Codes for a given tournament
+            * create tournament Codes for a given tournament
             * @param     {number}                                                      tournamentId    the ID of the tournament
             * @param     {number}                                                      count           Number of codes you want
             * @param     {RiotGamesAPI.TournamentProvider.TournamentCodeParameters}    params          Tournament Code parameters
             * @param     {number[]}                                                    callback        Tournaments Codes                                                                    [description]
             */
-        getTournamentCodes(tournamentId: number, count: number, params: RiotGamesAPI.TournamentProvider.TournamentCodeParameters, callback: (tournamentCodes: number[]) => void): any;
+        createTournamentCodes(tournamentId: number, count: number, params: RiotGamesAPI.TournamentProvider.TournamentCodeParameters, callback: (tournamentCodes: number[]) => void): any;
         /**
             * get tournament infos for a given tournament code
             * @param     {string}                                               tournamentCode    Tournament Code

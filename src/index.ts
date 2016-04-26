@@ -174,13 +174,13 @@ export class TournamentAPI {
 
     // **************************** tournament-provider-v1 *************************** //
     /**
-        * get tournament Codes for a given tournament
+        * create tournament Codes for a given tournament
         * @param     {number}                                                      tournamentId    the ID of the tournament
         * @param     {number}                                                      count           Number of codes you want
         * @param     {RiotGamesAPI.TournamentProvider.TournamentCodeParameters}    params          Tournament Code parameters
         * @param     {number[]}                                                    callback        Tournaments Codes                                                                    [description]
         */
-    public getTournamentCodes(tournamentId: number, count: number, params: RiotGamesAPI.TournamentProvider.TournamentCodeParameters, callback: (tournamentCodes: number[]) => void): any {
+    public createTournamentCodes(tournamentId: number, count: number, params: RiotGamesAPI.TournamentProvider.TournamentCodeParameters, callback: (tournamentCodes: number[]) => void): any {
         return new Promise((success, fail) => {
             this.getJSON(TOURNAMENT_URL_1 + "code?tournamentId=" + tournamentId + "&count=" + count, "post", params, (data: any) => {
                 callback(data);

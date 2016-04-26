@@ -183,6 +183,7 @@ registerTournament(name: string, providerId: number, callback: Fuction);
 
 ## Contributor(s)
 - [Zafix - https://github.com/zafixLRP](https://github.com/zafixLRP)
+- [CoreyTrombley - https://github.com/coreytrombley](https://github.com/coreytrombley)
 
 <hr>
 
