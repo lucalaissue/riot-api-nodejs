@@ -159,13 +159,13 @@ var TournamentAPI = (function () {
     };
     // **************************** tournament-provider-v1 *************************** //
     /**
-        * get tournament Codes for a given tournament
+        * create tournament Codes for a given tournament
         * @param     {number}                                                      tournamentId    the ID of the tournament
         * @param     {number}                                                      count           Number of codes you want
         * @param     {RiotGamesAPI.TournamentProvider.TournamentCodeParameters}    params          Tournament Code parameters
         * @param     {number[]}                                                    callback        Tournaments Codes                                                                    [description]
         */
-    TournamentAPI.prototype.getTournamentCodes = function (tournamentId, count, params, callback) {
+    TournamentAPI.prototype.createTournamentCodes = function (tournamentId, count, params, callback) {
         var _this = this;
         return new es6_promise_1.Promise(function (success, fail) {
             _this.getJSON(TOURNAMENT_URL_1 + "code?tournamentId=" + tournamentId + "&count=" + count, "post", params, function (data) {
@@ -315,6 +315,7 @@ var ClassicAPI = (function () {
     ClassicAPI.prototype.parseURL = function (unparsedURL) {
         var parsedURL = unparsedURL.replace(/{region}/g, region_e_TO_string(this.region));
         parsedURL = parsedURL.replace(/{endpoint}/g, region_e_TO_endpointString(this.region));
+        console.log(parsedURL);
         //if there are other params in the url :
         return parsedURL + (parsedURL.indexOf("?") > -1 ? "&" : "?") + "api_key=" + this.ApiKey;
     };
