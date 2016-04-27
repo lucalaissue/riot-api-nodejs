@@ -21,7 +21,7 @@ const CHAMPIONMASTERY_URL: string = "https://{region}.api.pvp.net/championmaster
 const GLOBAL_URL_1_2: string = "https://global.api.pvp.net/api/lol/static-data/{region}/v1.2/";
 
 // Spectator
-const URL_SPECTATOR_1_0: string = "https://{region}.api.pvp.net/observer-mode/rest/consumer/getSpectatorGameInfo/{endpoint}/";
+const URL_SPECTATOR_1_0: string = "https://{region}.api.pvp.net/observer-mode/rest/";
 
 // Tournament ULRS
 const TOURNAMENT_URL_1: string = "https://global.api.pvp.net/tournament/public/v1/";
