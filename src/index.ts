@@ -143,7 +143,7 @@ export class TournamentAPI {
         * @param     {(JSON}     callback    callback function with formatted JSON
         */
     private getJSON(url:string, method: string, data, callback: (JSON) => void): any{
-        this.switchApiKey;
+        this.switchApiKey();
         return new Promise((success, fail) => {
             request(
                 {
