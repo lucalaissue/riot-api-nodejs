@@ -17,7 +17,7 @@ var CHAMPIONMASTERY_URL = "https://{region}.api.pvp.net/championmastery/location
 // Statics Global URLS
 var GLOBAL_URL_1_2 = "https://global.api.pvp.net/api/lol/static-data/{region}/v1.2/";
 // Spectator
-var URL_SPECTATOR_1_0 = "https://{region}.api.pvp.net/observer-mode/rest/consumer/getSpectatorGameInfo/{endpoint}/";
+var URL_SPECTATOR_1_0 = "https://{region}.api.pvp.net/observer-mode/rest/";
 // Tournament ULRS
 var TOURNAMENT_URL_1 = "https://global.api.pvp.net/tournament/public/v1/";
 function region_e_TO_endpointString(param) {
@@ -127,7 +127,7 @@ var TournamentAPI = (function () {
         */
     TournamentAPI.prototype.getJSON = function (url, method, data, callback) {
         var _this = this;
-        this.switchApiKey;
+        this.switchApiKey();
         return new es6_promise_1.Promise(function (success, fail) {
             request({
                 url: url,
