@@ -6,7 +6,6 @@ import * as request from "request";
 import {Promise} from "es6-promise";
 
 // ClassicURLS
-const URL_1_0: string = "https://{region}.api.pvp.net/api/lol/{region}/v1.0/";
 const URL_1_2: string = "https://{region}.api.pvp.net/api/lol/{region}/v1.2/";
 const URL_1_3: string = "https://{region}.api.pvp.net/api/lol/{region}/v1.3/";
 const URL_1_4: string = "https://{region}.api.pvp.net/api/lol/{region}/v1.4/";
@@ -97,8 +96,8 @@ export enum region_e{
 }
 
 interface errorCode{
-    code: number,
-    message: string
+    code: number;
+    message: string;
 }
 
 const ERROR_CODES = {
@@ -110,7 +109,7 @@ const ERROR_CODES = {
     429: "Rate limit exceeded",
     500: "Internal server error",
     503: "Service unavailable"
-}
+};
 
 
 /**
@@ -142,7 +141,7 @@ export class TournamentAPI {
         * @param     {[type]}    data        body parameters
         * @param     {(JSON}     callback    callback function with formatted JSON
         */
-    private getJSON(url:string, method: string, data, callback: (JSON) => void): any{
+    private getJSON(url: string, method: string, data, callback: (JSON) => void): any{
         this.switchApiKey();
         return new Promise((success, fail) => {
             request(
@@ -197,7 +196,7 @@ export class TournamentAPI {
         */
     public getTournamentByCode(tournamentCode: string, callback: (tournament: RiotGamesAPI.TournamentProvider.TournamentCodeDto) => void): any{
         return new Promise((success, fail) => {
-            this.getJSON(TOURNAMENT_URL_1 + "code?tournamentCode=" + tournamentCode, "get", {},(tournamentCodeDto: RiotGamesAPI.TournamentProvider.TournamentCodeDto) => {
+            this.getJSON(TOURNAMENT_URL_1 + "code?tournamentCode=" + tournamentCode, "get", {}, (tournamentCodeDto: RiotGamesAPI.TournamentProvider.TournamentCodeDto) => {
                 callback(tournamentCodeDto);
             }).catch((err: errorCode) => {
                 fail(err);
@@ -213,7 +212,7 @@ export class TournamentAPI {
         */
     public editTournamentByCode(tournamentCode: string, params: RiotGamesAPI.TournamentProvider.TournamentCodeUpdateParameters, callback: () => void): any{
         return new Promise((success, fail) => {
-            this.getJSON(TOURNAMENT_URL_1 + "code/" + tournamentCode, "put", params,() => {
+            this.getJSON(TOURNAMENT_URL_1 + "code/" + tournamentCode, "put", params, () => {
                 callback();
             }).catch((err: errorCode) => {
                 fail(err);
@@ -332,7 +331,6 @@ export class ClassicAPI {
     private parseURL(unparsedURL: string): string{
         let parsedURL = unparsedURL.replace(/{region}/g, region_e_TO_string(this.region));
         parsedURL = parsedURL.replace(/{endpoint}/g, region_e_TO_endpointString(this.region));
-        console.log(parsedURL);
 
         //if there are other params in the url :
         return parsedURL + (parsedURL.indexOf("?") > -1 ? "&" : "?") + "api_key=" + this.ApiKey;
@@ -486,7 +484,7 @@ export class ClassicAPI {
         */
     public getCurrentGame(summonerId: number, callback: (gameInfoDto: RiotGamesAPI.CurrentGame.CurrentGameInfo) => void): any{
         return new Promise((success, fail) => {
-            this.getJSON(this.parseURL(URL_SPECTATOR_1_0 + summonerId), (gameInfo: RiotGamesAPI.CurrentGame.CurrentGameInfo) => {
+            this.getJSON(this.parseURL(URL_SPECTATOR_1_0 + "consumer/getSpectatorGameInfo/{endpoint}/" + summonerId), (gameInfo: RiotGamesAPI.CurrentGame.CurrentGameInfo) => {
                 callback(gameInfo);
             }).catch((err: errorCode) => {
                 fail(err);

@@ -5,7 +5,6 @@
 var request = require("request");
 var es6_promise_1 = require("es6-promise");
 // ClassicURLS
-var URL_1_0 = "https://{region}.api.pvp.net/api/lol/{region}/v1.0/";
 var URL_1_2 = "https://{region}.api.pvp.net/api/lol/{region}/v1.2/";
 var URL_1_3 = "https://{region}.api.pvp.net/api/lol/{region}/v1.3/";
 var URL_1_4 = "https://{region}.api.pvp.net/api/lol/{region}/v1.4/";
@@ -463,7 +462,7 @@ var ClassicAPI = (function () {
     ClassicAPI.prototype.getCurrentGame = function (summonerId, callback) {
         var _this = this;
         return new es6_promise_1.Promise(function (success, fail) {
-            _this.getJSON(_this.parseURL(URL_SPECTATOR_1_0 + summonerId), function (gameInfo) {
+            _this.getJSON(_this.parseURL(URL_SPECTATOR_1_0 + "consumer/getSpectatorGameInfo/{endpoint}/" + summonerId), function (gameInfo) {
                 callback(gameInfo);
             }).catch(function (err) {
                 fail(err);
