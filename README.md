@@ -12,6 +12,12 @@ A nodeJS library for the Riot Games Api
 ```
 
 ## definitions
+With *typings*:
+```
+  $ typings install --ambient riot-api-nodejs
+```
+
+With *TSD*:
 ```
   $ tsd install riot-api-nodejs
 ```
