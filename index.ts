@@ -1,26 +1,34 @@
 // NodeJS Library for Riot Games
 // Project: https://developer.riotgames.com/
 // Library by : Luca Laissue <https://github.com/zafixlrp>
-"use strict";
-var request = require("request");
-var es6_promise_1 = require("es6-promise");
+
+/// <reference path="./typings/main.d.ts"/>
+
+import * as request from "request";
+import {Promise} from "es6-promise";
+
 // ClassicURLS
-var URL_1_2 = "https://{region}.api.pvp.net/api/lol/{region}/v1.2/";
-var URL_1_3 = "https://{region}.api.pvp.net/api/lol/{region}/v1.3/";
-var URL_1_4 = "https://{region}.api.pvp.net/api/lol/{region}/v1.4/";
-var URL_2_2 = "https://{region}.api.pvp.net/api/lol/{region}/v2.2/";
-var URL_2_4 = "https://{region}.api.pvp.net/api/lol/{region}/v2.4/";
-var URL_2_5 = "https://{region}.api.pvp.net/api/lol/{region}/v2.5/";
+const URL_1_2: string = "https://{region}.api.pvp.net/api/lol/{region}/v1.2/";
+const URL_1_3: string = "https://{region}.api.pvp.net/api/lol/{region}/v1.3/";
+const URL_1_4: string = "https://{region}.api.pvp.net/api/lol/{region}/v1.4/";
+const URL_2_2: string = "https://{region}.api.pvp.net/api/lol/{region}/v2.2/";
+const URL_2_4: string = "https://{region}.api.pvp.net/api/lol/{region}/v2.4/";
+const URL_2_5: string = "https://{region}.api.pvp.net/api/lol/{region}/v2.5/";
+
 // ChampionMasteryURL
-var CHAMPIONMASTERY_URL = "https://{region}.api.pvp.net/championmastery/location/{endpoint}/";
+const CHAMPIONMASTERY_URL: string = "https://{region}.api.pvp.net/championmastery/location/{endpoint}/";
+
 // Statics Global URLS
-var GLOBAL_URL_1_2 = "https://global.api.pvp.net/api/lol/static-data/{region}/v1.2/";
+const GLOBAL_URL_1_2: string = "https://global.api.pvp.net/api/lol/static-data/{region}/v1.2/";
+
 // Spectator
-var URL_SPECTATOR_1_0 = "https://{region}.api.pvp.net/observer-mode/rest/";
+const URL_SPECTATOR_1_0: string = "https://{region}.api.pvp.net/observer-mode/rest/";
+
 // Tournament ULRS
-var TOURNAMENT_URL_1 = "https://global.api.pvp.net/tournament/public/v1/";
-function region_e_TO_endpointString(param) {
-    switch (param) {
+const TOURNAMENT_URL_1: string = "https://global.api.pvp.net/tournament/public/v1/";
+
+function region_e_TO_endpointString(param: region_e){
+    switch (param){
         case region_e.BR:
             return "BR1";
         case region_e.EUNE:
@@ -45,8 +53,9 @@ function region_e_TO_endpointString(param) {
             return "PBE1";
     }
 }
-function region_e_TO_string(param) {
-    switch (param) {
+
+function region_e_TO_string(param: region_e){
+    switch (param){
         case region_e.BR:
             return "br";
         case region_e.EUNE:
@@ -71,22 +80,29 @@ function region_e_TO_string(param) {
             return "pbe";
     }
 }
+
+
 // Regions List
-(function (region_e) {
-    region_e[region_e["BR"] = 0] = "BR";
-    region_e[region_e["EUNE"] = 1] = "EUNE";
-    region_e[region_e["EUW"] = 2] = "EUW";
-    region_e[region_e["KR"] = 3] = "KR";
-    region_e[region_e["LAN"] = 4] = "LAN";
-    region_e[region_e["LAS"] = 5] = "LAS";
-    region_e[region_e["NA"] = 6] = "NA";
-    region_e[region_e["OCE"] = 7] = "OCE";
-    region_e[region_e["TR"] = 8] = "TR";
-    region_e[region_e["RU"] = 9] = "RU";
-    region_e[region_e["PBE"] = 10] = "PBE";
-})(exports.region_e || (exports.region_e = {}));
-var region_e = exports.region_e;
-var ERROR_CODES = {
+export enum region_e{
+    BR,
+    EUNE,
+    EUW,
+    KR,
+    LAN,
+    LAS,
+    NA,
+    OCE,
+    TR,
+    RU,
+    PBE
+}
+
+interface errorCode{
+    code: number;
+    message: string;
+}
+
+const ERROR_CODES = {
     400: "Bad request",
     401: "Unauthorized",
     403: "Forbidden",
@@ -96,27 +112,30 @@ var ERROR_CODES = {
     500: "Internal server error",
     503: "Service unavailable"
 };
+
+
 /**
     * Tournament API
     */
-var TournamentAPI = (function () {
+export class TournamentAPI {
+    private ApiKeys: string[];
+    private ApiKey: string;
+
     /**
         * TournamentAPI Constructor
         */
-    function TournamentAPI() {
-        var ApiKeys = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            ApiKeys[_i - 0] = arguments[_i];
-        }
+    public constructor(...ApiKeys: string[]){
         this.ApiKeys = ApiKeys;
         this.ApiKey = ApiKeys[0];
     }
+
     /**
         * Change the Api Key for the next requests
         */
-    TournamentAPI.prototype.switchApiKey = function () {
+    private switchApiKey(): void {
         this.ApiKey = this.ApiKeys[(this.ApiKeys.indexOf(this.ApiKey) + 1) % this.ApiKeys.length];
-    };
+    }
+
     /**
         * Send a request to the Riot Games Api and return a formatted json via a callback
         * @param     {string}    url         request url
@@ -124,38 +143,36 @@ var TournamentAPI = (function () {
         * @param     {[type]}    data        body parameters
         * @param     {(JSON}     callback    callback function with formatted JSON
         */
-    TournamentAPI.prototype.getJSON = function (url, method, data, callback) {
-        var _this = this;
+    private getJSON(url: string, method: string, data, callback: (JSON) => void): any{
         this.switchApiKey();
-        return new es6_promise_1.Promise(function (success, fail) {
-            request({
+        return new Promise((success, fail) => {
+            request(
+                {
                 url: url,
                 method: method,
                 headers: {
                     "User-Agent": "request",
                     "Accept-Charset": "ISO-8859-1, utf-8",
-                    "X-Riot-Token": _this.ApiKey
+                    "X-Riot-Token": this.ApiKey
                 },
                 json: true,
                 body: data
-            }, function (err, res, body) {
+            }, (err: any, res: any, body: string) => {
                 if (res.statusCode == 200 || res.statusCode == 204) {
-                    try {
+                    try{
                         callback(JSON.parse(body));
-                    }
-                    catch (E) {
+                    } catch (E){
                         callback(body);
                     }
-                }
-                else if (res.statusCode == 429) {
-                    setTimeout(function () { _this.getJSON(url, method, data, callback); }, res.headers["retry-after"] * 1000);
-                }
-                else {
-                    fail({ code: res.statusCode, message: ERROR_CODES[res.statusCode] });
+                } else if (res.statusCode == 429){
+                    setTimeout(() => {this.getJSON(url, method, data, callback)}, res.headers["retry-after"] * 1000);
+                } else {
+                    fail({code: res.statusCode, message: ERROR_CODES[res.statusCode]});
                 }
             });
         });
-    };
+    }
+
     // **************************** tournament-provider-v1 *************************** //
     /**
         * create tournament Codes for a given tournament
@@ -164,123 +181,127 @@ var TournamentAPI = (function () {
         * @param     {RiotGamesAPI.TournamentProvider.TournamentCodeParameters}    params          Tournament Code parameters
         * @param     {number[]}                                                    callback        Tournaments Codes                                                                    [description]
         */
-    TournamentAPI.prototype.createTournamentCodes = function (tournamentId, count, params, callback) {
-        var _this = this;
-        return new es6_promise_1.Promise(function (success, fail) {
-            _this.getJSON(TOURNAMENT_URL_1 + "code?tournamentId=" + tournamentId + "&count=" + count, "post", params, function (data) {
+    public createTournamentCodes(tournamentId: number, count: number, params: RiotGamesAPI.TournamentProvider.TournamentCodeParameters, callback: (tournamentCodes: number[]) => void): any {
+        return new Promise((success, fail) => {
+            this.getJSON(TOURNAMENT_URL_1 + "code?tournamentId=" + tournamentId + "&count=" + count, "post", params, (data: any) => {
                 callback(data);
-            }).catch(function (err) {
+            }).catch((err: errorCode) => {
                 fail(err);
             });
         });
-    };
+    }
+
     /**
         * get tournament infos for a given tournament code
         * @param     {string}                                               tournamentCode    Tournament Code
         * @param     {RiotGamesAPI.TournamentProvider.TournamentCodeDto}    callback          Tournament Infos
         */
-    TournamentAPI.prototype.getTournamentByCode = function (tournamentCode, callback) {
-        var _this = this;
-        return new es6_promise_1.Promise(function (success, fail) {
-            _this.getJSON(TOURNAMENT_URL_1 + "code?tournamentCode=" + tournamentCode, "get", {}, function (tournamentCodeDto) {
+    public getTournamentByCode(tournamentCode: string, callback: (tournament: RiotGamesAPI.TournamentProvider.TournamentCodeDto) => void): any{
+        return new Promise((success, fail) => {
+            this.getJSON(TOURNAMENT_URL_1 + "code?tournamentCode=" + tournamentCode, "get", {}, (tournamentCodeDto: RiotGamesAPI.TournamentProvider.TournamentCodeDto) => {
                 callback(tournamentCodeDto);
-            }).catch(function (err) {
+            }).catch((err: errorCode) => {
                 fail(err);
             });
         });
-    };
+    }
+
     /**
         * edit the tournament Code parameters for a given tournament Code
         * @param     {string}                                                            tournamentCode    Tournament Code to update
         * @param     {RiotGamesAPI.TournamentProvider.TournamentCodeUpdateParameters}    params            parameters to edit
         * @param     {(}                                                                 callback          callback if succes
         */
-    TournamentAPI.prototype.editTournamentByCode = function (tournamentCode, params, callback) {
-        var _this = this;
-        return new es6_promise_1.Promise(function (success, fail) {
-            _this.getJSON(TOURNAMENT_URL_1 + "code/" + tournamentCode, "put", params, function () {
+    public editTournamentByCode(tournamentCode: string, params: RiotGamesAPI.TournamentProvider.TournamentCodeUpdateParameters, callback: () => void): any{
+        return new Promise((success, fail) => {
+            this.getJSON(TOURNAMENT_URL_1 + "code/" + tournamentCode, "put", params, () => {
                 callback();
-            }).catch(function (err) {
+            }).catch((err: errorCode) => {
                 fail(err);
             });
         });
-    };
+    }
+
     /**
         * get the lobby envents for a given tournament Code
         * @param     {string}                                           tournamentCode    the tournament code to get the lobby events
         * @param     {RiotGamesAPI.TournamentProvider.LobbyEventDto}    callback          lobby events
         */
-    TournamentAPI.prototype.getLobbyEventByCode = function (tournamentCode, callback) {
-        var _this = this;
-        return new es6_promise_1.Promise(function (success, fail) {
-            _this.getJSON(TOURNAMENT_URL_1 + "lobby/events/by-code/" + tournamentCode, "get", {}, function (lobbyEvent) {
+    public getLobbyEventByCode(tournamentCode: string, callback: (lobbyEventDto: RiotGamesAPI.TournamentProvider.LobbyEventDto) => void): any{
+        return new Promise((success, fail) => {
+            this.getJSON(TOURNAMENT_URL_1 + "lobby/events/by-code/" + tournamentCode, "get", {},(lobbyEvent: RiotGamesAPI.TournamentProvider.LobbyEventDto) => {
                 callback(lobbyEvent);
-            }).catch(function (err) {
+            }).catch((err: errorCode) => {
                 fail(err);
             });
         });
-    };
+    }
+
     /**
         * Register a new tournament provider
         * @param     {region_e}    region      region where you want to register the provider
         * @param     {string}      url         url of callback for the POST notifications
         * @param     {number}      callback    returns  the tounament provider ID
         */
-    TournamentAPI.prototype.registerProvider = function (region, url, callback) {
-        var _this = this;
-        return new es6_promise_1.Promise(function (success, fail) {
-            _this.getJSON(TOURNAMENT_URL_1 + "provider", "post", { "region": region_e_TO_string(region), "url": url }, function (data) {
+    public registerProvider(region: region_e, url: string, callback: (providerId: number) => void): any {
+        return new Promise((success, fail) => {
+            this.getJSON(TOURNAMENT_URL_1 + "provider", "post", {"region": region_e_TO_string(region), "url": url}, (data: any) => {
                 callback(data);
-            }).catch(function (err) {
+            }).catch((err: errorCode) => {
                 fail(err);
             });
         });
-    };
+    }
+
     /**
         * Register a new tournament
         * @param     {string}    name          Name of tournament
         * @param     {number}    providerId    Provider ID
         * @param     {number}    callback      returns the tournament ID
         */
-    TournamentAPI.prototype.registerTournament = function (name, providerId, callback) {
-        var _this = this;
-        return new es6_promise_1.Promise(function (success, fail) {
-            _this.getJSON(TOURNAMENT_URL_1 + "tournament", "post", { "name": name, "providerId": providerId }, function (data) {
+    public registerTournament(name: string, providerId: number, callback: (tournamentId: number) => void): any {
+        return new Promise((success, fail) => {
+            this.getJSON(TOURNAMENT_URL_1 + "tournament", "post",{"name": name, "providerId": providerId}, (data: any) => {
                 callback(data);
-            }).catch(function (err) {
+            }).catch((err: errorCode) => {
                 fail(err);
             });
         });
-    };
-    return TournamentAPI;
-}());
-exports.TournamentAPI = TournamentAPI;
-var ClassicAPI = (function () {
+    }
+    // ******************************************************************************* //
+}
+
+export class ClassicAPI {
+    private ApiKeys: string[];
+    private ApiKey: string;
+    private region: region_e;
+
     /**
         * ClassicAPI Constructor
         * @param     {string[]}    ApiKeys    API Keys for the requests
         * @param     {region_e}    region     region where you want to send requests
         */
-    function ClassicAPI(ApiKeys, region) {
+    public constructor(ApiKeys: string[], region: region_e){
         this.ApiKeys = ApiKeys;
         this.ApiKey = ApiKeys[0];
         this.region = region;
     }
+
     /**
         * change the API Key for the next requests
         */
-    ClassicAPI.prototype.switchApiKey = function () {
+    private switchApiKey(): void {
         this.ApiKey = this.ApiKeys[(this.ApiKeys.indexOf(this.ApiKey) + 1) % this.ApiKeys.length];
-    };
+    }
+
     /**
         * get the JSON response code for a given URL
         * @param     {string}      url         Request url
         * @param     {Function}    callback    JSON formatted data
         */
-    ClassicAPI.prototype.getJSON = function (url, callback) {
-        var _this = this;
+    private getJSON(url: string, callback): any{
         this.switchApiKey();
-        return new es6_promise_1.Promise(function (success, fail) {
+        return new Promise((success, fail) => {
             request({
                 url: url,
                 headers: {
@@ -288,108 +309,112 @@ var ClassicAPI = (function () {
                     "Accept-Charset": "ISO-8859-1, utf-8"
                 },
                 json: true
-            }, function (err, res, body) {
+            }, (err: any, res: any, body: string) => {
                 if (res.statusCode == 200) {
-                    try {
+                    try{
                         callback(JSON.parse(body));
-                    }
-                    catch (E) {
+                    } catch (E){
                         callback(body);
                     }
-                }
-                else if (res.statusCode == 429) {
-                    setTimeout(function () { _this.getJSON(url, callback); }, res.headers["retry-after"] * 1000);
-                }
-                else {
-                    fail({ code: res.statusCode, message: ERROR_CODES[res.statusCode] });
+                } else if (res.statusCode == 429){
+                    setTimeout(() => {this.getJSON(url, callback)}, res.headers["retry-after"] * 1000);
+                } else {
+                    fail({code: res.statusCode, message: ERROR_CODES[res.statusCode]});
                 }
             });
         });
-    };
+    }
+
     /**
         * Edit the consts for a valid url for the riot games api
         * @param     {string}    unparsedURL    the URL to parse
         * @return    {string}                   the Parsed URL
         */
-    ClassicAPI.prototype.parseURL = function (unparsedURL) {
-        var parsedURL = unparsedURL.replace(/{region}/g, region_e_TO_string(this.region));
+    private parseURL(unparsedURL: string): string{
+        let parsedURL = unparsedURL.replace(/{region}/g, region_e_TO_string(this.region));
         parsedURL = parsedURL.replace(/{endpoint}/g, region_e_TO_endpointString(this.region));
+
         //if there are other params in the url :
         return parsedURL + (parsedURL.indexOf("?") > -1 ? "&" : "?") + "api_key=" + this.ApiKey;
-    };
+    }
+
     /**
         * get the API Key that is used for the requests
         * @return    {string}    the current API Key
         */
-    ClassicAPI.prototype.getCurrentApiKey = function () {
+    public getCurrentApiKey(): string {
         return this.ApiKey;
-    };
+    }
+
     /**
         * get the region where send send request
         * @return    {region_e}    the current region
         */
-    ClassicAPI.prototype.getRegion = function () {
+    public getRegion(): region_e {
         return this.region;
-    };
+    }
+
     /**
         * set the API Keys
         * @param    {string[]}    ApiKeys    the API Keys
         */
-    ClassicAPI.prototype.setApikeys = function (ApiKeys) {
+    public setApikeys(ApiKeys: string[]): void {
         this.ApiKeys = ApiKeys;
-    };
+    }
+
     /**
         * set the region where you want to send requests
         * @param    {region_e}    region    the region
         */
-    ClassicAPI.prototype.setRegion = function (region) {
+    public setRegion(region: region_e): void {
         this.region = region;
-    };
+    }
+
     // **************************** champion-v1.2 ************************************ //
     /**
         * get all champions of league of legends
         * @param     {RiotGamesAPI.Champion.ChampionListDto}    callback    data callback
         */
-    ClassicAPI.prototype.getChampions = function (callback) {
-        var _this = this;
-        return new es6_promise_1.Promise(function (success, fail) {
-            _this.getJSON(_this.parseURL(URL_1_2 + "champion"), function (champions) {
+    public getChampions(callback: (championListDto: RiotGamesAPI.Champion.ChampionListDto) => void): any{
+        return new Promise((success, fail) => {
+            this.getJSON(this.parseURL(URL_1_2 + "champion"), (champions: JSON) => {
                 callback(champions["champions"]);
-            }).catch(function (err) {
+            }).catch((err: errorCode) => {
                 fail(err);
             });
         });
-    };
+    }
+
     /**
         * get the champion for a given id
         * @param     {number}                               id          the champion id
         * @param     {RiotGamesAPI.Champion.ChampionDto}    callback    data callback
         */
-    ClassicAPI.prototype.getChampionById = function (id, callback) {
-        var _this = this;
-        return new es6_promise_1.Promise(function (success, fail) {
-            _this.getJSON(_this.parseURL(URL_1_2 + "champion/" + id), function (champion) {
+    public getChampionById(id: number, callback: (ChampionDto: RiotGamesAPI.Champion.ChampionDto) => void):any {
+        return new Promise((success, fail) => {
+            this.getJSON(this.parseURL(URL_1_2 + "champion/" + id), (champion: RiotGamesAPI.Champion.ChampionDto) => {
                 callback(champion);
-            }).catch(function (err) {
+            }).catch((err: errorCode) => {
                 fail(err);
             });
         });
-    };
+    }
+
     /**
         * get the free to play champions
         * @param     {RiotGamesAPI.Champion.ChampionListDto}    callback    data callback
         */
-    ClassicAPI.prototype.getFreeToPlayChampions = function (callback) {
-        var _this = this;
-        return new es6_promise_1.Promise(function (success, fail) {
-            _this.getJSON(_this.parseURL(URL_1_2 + "champion?freeToPlay=true"), function (champions) {
+    public getFreeToPlayChampions(callback: (championsListDto: RiotGamesAPI.Champion.ChampionListDto) => void): any{
+        return new Promise((success, fail) => {
+            this.getJSON(this.parseURL(URL_1_2 + "champion?freeToPlay=true"), (champions: JSON) => {
                 callback(champions["champions"]);
-            }).catch(function (err) {
+            }).catch((err: errorCode) => {
                 fail(err);
             });
         });
-    };
+    }
     // ******************************************************************************* //
+
     // **************************** championmastery ********************************** //
     /**
         * get Champion mastery of a player for a given champion ID
@@ -397,706 +422,704 @@ var ClassicAPI = (function () {
         * @param     {number}                                             championId    Champion ID
         * @param     {RiotGamesAPI.ChampionMastery.ChampionMasteryDto}    callback      data callback
         */
-    ClassicAPI.prototype.getChampionMastery = function (summonerId, championId, callback) {
-        var _this = this;
-        return new es6_promise_1.Promise(function (success, fail) {
-            _this.getJSON(_this.parseURL(CHAMPIONMASTERY_URL + "player/" + summonerId + "/champion/" + championId), function (championMasteryDto) {
+    public getChampionMastery(summonerId: number, championId: number, callback: (championMastery: RiotGamesAPI.ChampionMastery.ChampionMasteryDto) => void): any {
+        return new Promise((success, fail) => {
+            this.getJSON(this.parseURL(CHAMPIONMASTERY_URL + "player/" + summonerId + "/champion/" + championId), (championMasteryDto: RiotGamesAPI.ChampionMastery.ChampionMasteryDto) => {
                 callback(championMasteryDto);
-            }).catch(function (err) {
+            }).catch((err: errorCode) => {
                 fail(err);
             });
         });
-    };
+    }
+
     /**
         * get all champion masteries for a given summoner
         * @param     {number}                                               summonerId    Summoner ID
         * @param     {[RiotGamesAPI.ChampionMastery.ChampionMasteryDto]}    callback      data callback
         */
-    ClassicAPI.prototype.getChampionMasteryBySummoner = function (summonerId, callback) {
-        var _this = this;
-        return new es6_promise_1.Promise(function (success, fail) {
-            _this.getJSON(_this.parseURL(CHAMPIONMASTERY_URL + "player/" + summonerId + "/champions"), function (championsMasteryDto) {
+    public getChampionMasteryBySummoner(summonerId: number, callback: (championsMastery: [RiotGamesAPI.ChampionMastery.ChampionMasteryDto]) => void): any {
+        return new Promise((success, fail) => {
+            this.getJSON(this.parseURL(CHAMPIONMASTERY_URL + "player/" + summonerId + "/champions"), (championsMasteryDto: [RiotGamesAPI.ChampionMastery.ChampionMasteryDto]) => {
                 callback(championsMasteryDto);
-            }).catch(function (err) {
+            }).catch((err: errorCode) => {
                 fail(err);
             });
         });
-    };
+    }
+
     /**
         * get the mastery score of a summoner
         * @param     {number}    summonerId    Summoner ID
         * @param     {number}    callback      Mastery Score
         */
-    ClassicAPI.prototype.getChampionMasteryScore = function (summonerId, callback) {
-        var _this = this;
-        return new es6_promise_1.Promise(function (success, fail) {
-            _this.getJSON(_this.parseURL(CHAMPIONMASTERY_URL + "player/" + summonerId + "/score"), function (score) {
+    public getChampionMasteryScore(summonerId: number, callback: (score: number) => void): any {
+        return new Promise((success, fail) => {
+            this.getJSON(this.parseURL(CHAMPIONMASTERY_URL + "player/" + summonerId + "/score"), (score: number) => {
                 callback(score);
-            }).catch(function (err) {
+            }).catch((err: errorCode) => {
                 fail(err);
             });
         });
-    };
+    }
+
     /**
         * get The 3 best champion masteries
         * @param     {[type]}                                               summonerId    Summoner ID
         * @param     {[RiotGamesAPI.ChampionMastery.ChampionMasteryDto]}    callback      data callback
         */
-    ClassicAPI.prototype.getTopChampionMastery = function (summonerId, callback) {
-        var _this = this;
-        return new es6_promise_1.Promise(function (success, fail) {
-            _this.getJSON(_this.parseURL(CHAMPIONMASTERY_URL + "player/" + summonerId + "/topchampions"), function (championsMasteryDto) {
+    public getTopChampionMastery(summonerId, callback: (championsMastery: [RiotGamesAPI.ChampionMastery.ChampionMasteryDto]) => void): any {
+        return new Promise((success, fail) => {
+            this.getJSON(this.parseURL(CHAMPIONMASTERY_URL + "player/" + summonerId + "/topchampions"), (championsMasteryDto: [RiotGamesAPI.ChampionMastery.ChampionMasteryDto]) => {
                 callback(championsMasteryDto);
-            }).catch(function (err) {
+            }).catch((err: errorCode) => {
                 fail(err);
             });
         });
-    };
+    }
     // ******************************************************************************* //
+
     // ***************************** current-game-v1.0 ******************************* //
     /**
         * get the current game infos for a given summoner ID
         * @param     {number}                                      summonerId    Summoner ID
         * @param     {RiotGamesAPI.CurrentGame.CurrentGameInfo}    callback      data callback
         */
-    ClassicAPI.prototype.getCurrentGame = function (summonerId, callback) {
-        var _this = this;
-        return new es6_promise_1.Promise(function (success, fail) {
-            _this.getJSON(_this.parseURL(URL_SPECTATOR_1_0 + "consumer/getSpectatorGameInfo/{endpoint}/" + summonerId), function (gameInfo) {
+    public getCurrentGame(summonerId: number, callback: (gameInfoDto: RiotGamesAPI.CurrentGame.CurrentGameInfo) => void): any{
+        return new Promise((success, fail) => {
+            this.getJSON(this.parseURL(URL_SPECTATOR_1_0 + "consumer/getSpectatorGameInfo/{endpoint}/" + summonerId), (gameInfo: RiotGamesAPI.CurrentGame.CurrentGameInfo) => {
                 callback(gameInfo);
-            }).catch(function (err) {
+            }).catch((err: errorCode) => {
                 fail(err);
             });
         });
-    };
+    }
     // ******************************************************************************* //
+
     // ***************************** featured-games-v1.0 ***************************** //
     /**
         * get the featured games
         * @param     {RiotGamesAPI.FeaturedGames.FeaturedGames}    callback    data callback
         */
-    ClassicAPI.prototype.getFeaturedGame = function (callback) {
-        var _this = this;
-        return new es6_promise_1.Promise(function (success, fail) {
-            _this.getJSON(_this.parseURL(URL_SPECTATOR_1_0 + "featured"), function (featuredGames) {
+    public getFeaturedGame(callback: (featuredGamesInfos: RiotGamesAPI.FeaturedGames.FeaturedGames) => void): any {
+        return new Promise((success, fail) => {
+            this.getJSON(this.parseURL(URL_SPECTATOR_1_0 + "featured"), (featuredGames: RiotGamesAPI.FeaturedGames.FeaturedGames) => {
                 callback(featuredGames);
-            }).catch(function (err) {
+            }).catch((err: errorCode) => {
                 fail(err);
             });
         });
-    };
+    }
     // ******************************************************************************* //
+
     // ********************************** game-v1.3 ********************************** //
     /**
         * get the recents games for a given Summoner ID
         * @param     {number}                              summonerId    Summoner ID
         * @param     {RiotGamesAPI.Game.RecentGamesDto}    callback      data callback
         */
-    ClassicAPI.prototype.getRecentGames = function (summonerId, callback) {
-        var _this = this;
-        return new es6_promise_1.Promise(function (success, fail) {
-            _this.getJSON(_this.parseURL(URL_1_3 + "game/by-summoner/" + summonerId + "/recent"), function (RecentGames) {
+    public getRecentGames(summonerId: number, callback: (RecentGamesDto: RiotGamesAPI.Game.RecentGamesDto) => void): any {
+        return new Promise((success, fail) => {
+            this.getJSON(this.parseURL(URL_1_3 + "game/by-summoner/" + summonerId + "/recent"), (RecentGames: RiotGamesAPI.Game.RecentGamesDto) => {
                 callback(RecentGames);
-            }).catch(function (err) {
+            }).catch((err: errorCode) => {
                 fail(err);
             });
         });
-    };
+    }
     // ******************************************************************************* //
+
     // ********************************** league-v2.5********************************* //
     /**
         * Get League infos of a summoner
         * @param     {number}                             summonerId    Summoner ID
         * @param     {RiotGamesAPI.League.LeagueDto[]}    callback      data callback
         */
-    ClassicAPI.prototype.getLeagueBySummonerId = function (summonerId, callback) {
-        var _this = this;
-        return new es6_promise_1.Promise(function (success, fail) {
-            _this.getJSON(_this.parseURL(URL_2_5 + "league/by-summoner/" + summonerId), function (League) {
+    public getLeagueBySummonerId(summonerId: number, callback: (LeagueDto: RiotGamesAPI.League.LeagueDto[]) => void): any {
+        return new Promise((success, fail) => {
+            this.getJSON(this.parseURL(URL_2_5 + "league/by-summoner/" + summonerId), (League: RiotGamesAPI.League.LeagueDto) => {
                 callback(League[summonerId]);
-            }).catch(function (err) {
+            }).catch((err: errorCode) => {
                 fail(err);
             });
         });
-    };
+    }
+
     /**
         * get League infos of a summoner
         * @param     {number}                             summonerId    Summoner ID
         * @param     {RiotGamesAPI.League.LeagueDto[]}    callback      data callback
         */
-    ClassicAPI.prototype.getLeagueBySummonerIdEntry = function (summonerId, callback) {
-        var _this = this;
-        return new es6_promise_1.Promise(function (success, fail) {
-            _this.getJSON(_this.parseURL(URL_2_5 + "league/by-summoner/" + summonerId + "/entry"), function (League) {
+    public getLeagueBySummonerIdEntry(summonerId: number, callback: (LeagueDto: RiotGamesAPI.League.LeagueDto[]) => void): any {
+        return new Promise((success, fail) => {
+            this.getJSON(this.parseURL(URL_2_5 + "league/by-summoner/" + summonerId + "/entry"), (League: RiotGamesAPI.League.LeagueDto) => {
                 callback(League[summonerId]);
-            }).catch(function (err) {
+            }).catch((err: errorCode) => {
                 fail(err);
             });
         });
-    };
+    }
+
     /**
         * get league infos by team
         * @param     {string}                             teamId      Team ID
         * @param     {RiotGamesAPI.League.LeagueDto[]}    callback    data callback
         */
-    ClassicAPI.prototype.getLeagueByTeamId = function (teamId, callback) {
-        var _this = this;
-        return new es6_promise_1.Promise(function (success, fail) {
-            _this.getJSON(_this.parseURL(URL_2_5 + "league/by-team/" + teamId), function (League) {
+    public getLeagueByTeamId(teamId: string, callback: (LeagueDto: RiotGamesAPI.League.LeagueDto[]) => void): any {
+        return new Promise((success, fail) => {
+            this.getJSON(this.parseURL(URL_2_5 + "league/by-team/" + teamId), (League: RiotGamesAPI.League.LeagueDto) => {
                 callback(League[teamId]);
-            }).catch(function (err) {
+            }).catch((err: errorCode) => {
                 fail(err);
             });
         });
-    };
+    }
+
     /**
         * get league infos by team
         * @param     {string}                             teamId      Team ID
         * @param     {RiotGamesAPI.League.LeagueDto[]}    callback    data callback
         */
-    ClassicAPI.prototype.getLeagueByTeamIdEntry = function (teamId, callback) {
-        var _this = this;
-        return new es6_promise_1.Promise(function (success, fail) {
-            _this.getJSON(_this.parseURL(URL_2_5 + "league/by-team/" + teamId + "/entry"), function (League) {
+    public getLeagueByTeamIdEntry(teamId: string, callback: (LeagueDto: RiotGamesAPI.League.LeagueDto[]) => void): any {
+        return new Promise((success, fail) => {
+            this.getJSON(this.parseURL(URL_2_5 + "league/by-team/" + teamId + "/entry"), (League: RiotGamesAPI.League.LeagueDto) => {
                 callback(League[teamId]);
-            }).catch(function (err) {
+            }).catch((err: errorCode) => {
                 fail(err);
             });
         });
-    };
+    }
+
     /**
         * get Challengers in SOLO Queue
         * @param     {RiotGamesAPI.League.LeagueDto}    callback    data callback
         */
-    ClassicAPI.prototype.getChallengers_SOLO = function (callback) {
-        var _this = this;
-        return new es6_promise_1.Promise(function (success, fail) {
-            _this.getJSON(_this.parseURL(URL_2_5 + "league/challenger?type=RANKED_SOLO_5x5"), function (League) {
+    public getChallengers_SOLO(callback: (League: RiotGamesAPI.League.LeagueDto) => void): any {
+        return new Promise((success, fail) => {
+            this.getJSON(this.parseURL(URL_2_5 + "league/challenger?type=RANKED_SOLO_5x5"), (League: RiotGamesAPI.League.LeagueDto) => {
                 callback(League);
-            }).catch(function (err) {
+            }).catch((err: errorCode) => {
                 fail(err);
             });
         });
-    };
+    }
+
     /**
         * get Challengers Teams in 3x3
         * @param     {RiotGamesAPI.League.LeagueDto}    callback    data callback
         */
-    ClassicAPI.prototype.getChallengers_3x3 = function (callback) {
-        var _this = this;
-        return new es6_promise_1.Promise(function (success, fail) {
-            _this.getJSON(_this.parseURL(URL_2_5 + "league/challenger?type=RANKED_TEAM_3x3"), function (League) {
+    public getChallengers_3x3(callback: (League: RiotGamesAPI.League.LeagueDto) => void): any {
+        return new Promise((success, fail) => {
+            this.getJSON(this.parseURL(URL_2_5 + "league/challenger?type=RANKED_TEAM_3x3"), (League: RiotGamesAPI.League.LeagueDto) => {
                 callback(League);
-            }).catch(function (err) {
+            }).catch((err: errorCode) => {
                 fail(err);
             });
         });
-    };
+    }
+
     /**
         * get Challengers Teams in 5x5
         * @param     {RiotGamesAPI.League.LeagueDto}    callback    data callback
         */
-    ClassicAPI.prototype.getChallengers_5x5 = function (callback) {
-        var _this = this;
-        return new es6_promise_1.Promise(function (success, fail) {
-            _this.getJSON(_this.parseURL(URL_2_5 + "league/challenger?type=RANKED_TEAM_5x5"), function (League) {
+    public getChallengers_5x5(callback: (League: RiotGamesAPI.League.LeagueDto) => void): any {
+        return new Promise((success, fail) => {
+            this.getJSON(this.parseURL(URL_2_5 + "league/challenger?type=RANKED_TEAM_5x5"), (League: RiotGamesAPI.League.LeagueDto) => {
                 callback(League);
-            }).catch(function (err) {
+            }).catch((err: errorCode) => {
                 fail(err);
             });
         });
-    };
+    }
+
     /**
         * get Masters in Solo Queue
         * @param     {RiotGamesAPI.League.LeagueDto}    callback    data callback
         */
-    ClassicAPI.prototype.getMasters_SOLO = function (callback) {
-        var _this = this;
-        return new es6_promise_1.Promise(function (success, fail) {
-            _this.getJSON(_this.parseURL(URL_2_5 + "league/master?type=RANKED_SOLO_5x5"), function (League) {
+    public getMasters_SOLO(callback: (League: RiotGamesAPI.League.LeagueDto) => void): any {
+        return new Promise((success, fail) => {
+            this.getJSON(this.parseURL(URL_2_5 + "league/master?type=RANKED_SOLO_5x5"), (League: RiotGamesAPI.League.LeagueDto) => {
                 callback(League);
-            }).catch(function (err) {
+            }).catch((err: errorCode) => {
                 fail(err);
             });
         });
-    };
+    }
+
     /**
         * get Master Teams in 3x3
         * @param     {RiotGamesAPI.League.LeagueDto}    callback    data callback
         */
-    ClassicAPI.prototype.getMasters_3x3 = function (callback) {
-        var _this = this;
-        return new es6_promise_1.Promise(function (success, fail) {
-            _this.getJSON(_this.parseURL(URL_2_5 + "league/master?type=RANKED_TEAM_3x3"), function (League) {
+    public getMasters_3x3(callback: (League: RiotGamesAPI.League.LeagueDto) => void): any {
+        return new Promise((success, fail) => {
+            this.getJSON(this.parseURL(URL_2_5 + "league/master?type=RANKED_TEAM_3x3"), (League: RiotGamesAPI.League.LeagueDto) => {
                 callback(League);
-            }).catch(function (err) {
+            }).catch((err: errorCode) => {
                 fail(err);
             });
         });
-    };
+    }
+
     /**
         * get Master Teams in 5x5
         * @param     {RiotGamesAPI.League.LeagueDto}    callback    data callback
         */
-    ClassicAPI.prototype.getMasters_5x5 = function (callback) {
-        var _this = this;
-        return new es6_promise_1.Promise(function (success, fail) {
-            _this.getJSON(_this.parseURL(URL_2_5 + "league/master?type=RANKED_TEAM_5x5"), function (League) {
+    public getMasters_5x5(callback: (League: RiotGamesAPI.League.LeagueDto) => void): any {
+        return new Promise((success, fail) => {
+            this.getJSON(this.parseURL(URL_2_5 + "league/master?type=RANKED_TEAM_5x5"), (League: RiotGamesAPI.League.LeagueDto) => {
                 callback(League);
-            }).catch(function (err) {
+            }).catch((err: errorCode) => {
                 fail(err);
             });
         });
-    };
+    }
     // ******************************************************************************* //
+
     // ***************************** lol-static-data-v1.2 **************************** //
     /**
         * get Champions (static data)
         * @param     {RiotGamesAPI.LolStaticData.ChampionListDto}    callback    data callback
         */
-    ClassicAPI.prototype.staticDataChampions = function (callback) {
-        var _this = this;
-        return new es6_promise_1.Promise(function (success, fail) {
-            _this.getJSON(_this.parseURL(GLOBAL_URL_1_2 + "champion"), function (championList) {
+    public staticDataChampions(callback: (championListDto: RiotGamesAPI.LolStaticData.ChampionListDto) => void): any {
+        return new Promise((success, fail) => {
+            this.getJSON(this.parseURL(GLOBAL_URL_1_2 + "champion"), (championList: RiotGamesAPI.LolStaticData.ChampionListDto) => {
                 callback(championList);
-            }).catch(function (err) {
+            }).catch((err: errorCode) => {
                 fail(err);
             });
         });
-    };
+    }
+
     /**
         * get data by champion ID
         * @param     {number}                                    championsId    Champion ID
         * @param     {RiotGamesAPI.LolStaticData.ChampionDto}    callback       data callback
         */
-    ClassicAPI.prototype.staticDataChampionById = function (championsId, callback) {
-        var _this = this;
-        return new es6_promise_1.Promise(function (success, fail) {
-            _this.getJSON(_this.parseURL(GLOBAL_URL_1_2 + "champion/" + championsId), function (champion) {
+    public staticDataChampionById(championsId: number, callback: (championDto: RiotGamesAPI.LolStaticData.ChampionDto) => void): any {
+        return new Promise((success, fail) => {
+            this.getJSON(this.parseURL(GLOBAL_URL_1_2 + "champion/" + championsId), (champion: RiotGamesAPI.LolStaticData.ChampionDto) => {
                 callback(champion);
-            }).catch(function (err) {
+            }).catch((err: errorCode) => {
                 fail(err);
             });
         });
-    };
+    }
+
     /**
         * get League of Legends Items
         * @param     {RiotGamesAPI.LolStaticData.ItemListDto}    callback    data callback
         */
-    ClassicAPI.prototype.staticDataItems = function (callback) {
-        var _this = this;
-        return new es6_promise_1.Promise(function (success, fail) {
-            _this.getJSON(_this.parseURL(GLOBAL_URL_1_2 + "item"), function (items) {
+    public staticDataItems(callback: (itemsDto: RiotGamesAPI.LolStaticData.ItemListDto) => void): any {
+        return new Promise((success, fail) => {
+            this.getJSON(this.parseURL(GLOBAL_URL_1_2 + "item"), (items: RiotGamesAPI.LolStaticData.ItemListDto) => {
                 callback(items);
-            }).catch(function (err) {
+            }).catch((err: errorCode) => {
                 fail(err);
             });
         });
-    };
+    }
+
     /**
         * Get item infos by ID
         * @param     {number}                                itemId      item ID
         * @param     {RiotGamesAPI.LolStaticData.ItemDto}    callback    data callback
         */
-    ClassicAPI.prototype.staticDataItemById = function (itemId, callback) {
-        var _this = this;
-        return new es6_promise_1.Promise(function (success, fail) {
-            _this.getJSON(_this.parseURL(GLOBAL_URL_1_2 + "item/" + itemId), function (item) {
+    public staticDataItemById(itemId: number, callback: (itemDto: RiotGamesAPI.LolStaticData.ItemDto) => void): any {
+        return new Promise((success, fail) => {
+            this.getJSON(this.parseURL(GLOBAL_URL_1_2 + "item/" + itemId), (item: RiotGamesAPI.LolStaticData.ItemDto) => {
                 callback(item);
-            }).catch(function (err) {
+            }).catch((err: errorCode) => {
                 fail(err);
             });
         });
-    };
+    }
+
     /**
         * get league of legends languages
         * @param     {RiotGamesAPI.LolStaticData.LanguageStringsDto}    callback    data callback
         */
-    ClassicAPI.prototype.staticDataLanguagesStrings = function (callback) {
-        var _this = this;
-        return new es6_promise_1.Promise(function (success, fail) {
-            _this.getJSON(_this.parseURL(GLOBAL_URL_1_2 + "language-strings"), function (languages) {
+    public staticDataLanguagesStrings(callback: (languageStringsDto: RiotGamesAPI.LolStaticData.LanguageStringsDto) => void): any {
+        return new Promise((success, fail) => {
+            this.getJSON(this.parseURL(GLOBAL_URL_1_2 + "language-strings"), (languages: RiotGamesAPI.LolStaticData.LanguageStringsDto) => {
                 callback(languages);
-            }).catch(function (err) {
+            }).catch((err: errorCode) => {
                 fail(err);
             });
         });
-    };
+    }
+
     /**
         * get league of legends languages
         * @param     {string[]}    callback    data callback
         */
-    ClassicAPI.prototype.staticDataLanguages = function (callback) {
-        var _this = this;
-        return new es6_promise_1.Promise(function (success, fail) {
-            _this.getJSON(_this.parseURL(GLOBAL_URL_1_2 + "languages"), function (languages) {
+    public staticDataLanguages(callback: (languages: string[]) => void): any {
+        return new Promise((success, fail) => {
+            this.getJSON(this.parseURL(GLOBAL_URL_1_2 + "languages"), (languages: string[]) => {
                 callback(languages);
-            }).catch(function (err) {
+            }).catch((err: errorCode) => {
                 fail(err);
             });
         });
-    };
+    }
+
     /**
         * get Map data
         * @param     {RiotGamesAPI.LolStaticData.MapDataDto}    callback    data callback
         */
-    ClassicAPI.prototype.staticDataMap = function (callback) {
-        var _this = this;
-        return new es6_promise_1.Promise(function (success, fail) {
-            _this.getJSON(_this.parseURL(GLOBAL_URL_1_2 + "map"), function (maps) {
+    public staticDataMap(callback: (mapDataDto: RiotGamesAPI.LolStaticData.MapDataDto) => void): any {
+        return new Promise((success, fail) => {
+            this.getJSON(this.parseURL(GLOBAL_URL_1_2 + "map"), (maps: RiotGamesAPI.LolStaticData.MapDataDto) => {
                 callback(maps);
-            }).catch(function (err) {
+            }).catch((err: errorCode) => {
                 fail(err);
             });
         });
-    };
+    }
+
     /**
         * get all masteries
         * @param     {RiotGamesAPI.LolStaticData.MasteryListDto}    callback    data callback
         */
-    ClassicAPI.prototype.staticDataMastery = function (callback) {
-        var _this = this;
-        return new es6_promise_1.Promise(function (success, fail) {
-            _this.getJSON(_this.parseURL(GLOBAL_URL_1_2 + "mastery"), function (masteryList) {
+    public staticDataMastery(callback: (masteryListDto: RiotGamesAPI.LolStaticData.MasteryListDto) => void): any {
+        return new Promise((success, fail) => {
+            this.getJSON(this.parseURL(GLOBAL_URL_1_2 + "mastery"), (masteryList: RiotGamesAPI.LolStaticData.MasteryListDto) => {
                 callback(masteryList);
-            }).catch(function (err) {
+            }).catch((err: errorCode) => {
                 fail(err);
             });
         });
-    };
+    }
+
     /**
         * get data by mastery ID
         * @param     {number}                                   masteryId    Mastery ID
         * @param     {RiotGamesAPI.LolStaticData.MasteryDto}    callback     data callback
         */
-    ClassicAPI.prototype.staticDataMasteryById = function (masteryId, callback) {
-        var _this = this;
-        return new es6_promise_1.Promise(function (success, fail) {
-            _this.getJSON(_this.parseURL(GLOBAL_URL_1_2 + "mastery/" + masteryId), function (mastery) {
+    public staticDataMasteryById(masteryId: number, callback: (masteryDto: RiotGamesAPI.LolStaticData.MasteryDto) => void): any {
+        return new Promise((success, fail) => {
+            this.getJSON(this.parseURL(GLOBAL_URL_1_2 + "mastery/" + masteryId), (mastery: RiotGamesAPI.LolStaticData.MasteryDto) => {
                 callback(mastery);
-            }).catch(function (err) {
+            }).catch((err: errorCode) => {
                 fail(err);
             });
         });
-    };
-    ClassicAPI.prototype.staticDataRealm = function (callback) {
-        var _this = this;
-        return new es6_promise_1.Promise(function (success, fail) {
-            _this.getJSON(_this.parseURL(GLOBAL_URL_1_2 + "realm"), function (realm) {
+    }
+
+    public staticDataRealm(callback: (realmDto: RiotGamesAPI.LolStaticData.RealmDto) => void): any {
+        return new Promise((success, fail) => {
+            this.getJSON(this.parseURL(GLOBAL_URL_1_2 + "realm"), (realm: RiotGamesAPI.LolStaticData.RealmDto) => {
                 callback(realm);
-            }).catch(function (err) {
+            }).catch((err: errorCode) => {
                 fail(err);
             });
         });
-    };
+    }
+
     /**
         * get all runes
         * @param     {RiotGamesAPI.LolStaticData.RuneListDto}    callback    data callback
         */
-    ClassicAPI.prototype.staticDataRunes = function (callback) {
-        var _this = this;
-        return new es6_promise_1.Promise(function (success, fail) {
-            _this.getJSON(_this.parseURL(GLOBAL_URL_1_2 + "rune"), function (runeList) {
+    public staticDataRunes(callback: (runeListDto: RiotGamesAPI.LolStaticData.RuneListDto) => void): any {
+        return new Promise((success, fail) => {
+            this.getJSON(this.parseURL(GLOBAL_URL_1_2 + "rune"), (runeList: RiotGamesAPI.LolStaticData.RuneListDto) => {
                 callback(runeList);
-            }).catch(function (err) {
+            }).catch((err: errorCode) => {
                 fail(err);
             });
         });
-    };
+    }
+
     /**
         * get rune by Rune ID
         * @param     {number}                                runeId      Rune ID
         * @param     {RiotGamesAPI.LolStaticData.RuneDto}    callback    data callback
         */
-    ClassicAPI.prototype.staticDataRuneById = function (runeId, callback) {
-        var _this = this;
-        return new es6_promise_1.Promise(function (success, fail) {
-            _this.getJSON(_this.parseURL(GLOBAL_URL_1_2 + "rune/" + runeId), function (rune) {
+    public staticDataRuneById(runeId: number, callback: (runeDto: RiotGamesAPI.LolStaticData.RuneDto) => void): any {
+        return new Promise((success, fail) => {
+            this.getJSON(this.parseURL(GLOBAL_URL_1_2 + "rune/" + runeId), (rune: RiotGamesAPI.LolStaticData.RuneDto) => {
                 callback(rune);
-            }).catch(function (err) {
+            }).catch((err: errorCode) => {
                 fail(err);
             });
         });
-    };
+    }
+
     /**
         * get all summoner spells
         * @param     {RiotGamesAPI.LolStaticData.SummonerSpellListDto}    callback    data callback
         */
-    ClassicAPI.prototype.staticDataSummonerSpells = function (callback) {
-        var _this = this;
-        return new es6_promise_1.Promise(function (success, fail) {
-            _this.getJSON(_this.parseURL(GLOBAL_URL_1_2 + "summoner-spell"), function (summonerSpellList) {
+    public staticDataSummonerSpells(callback: (summonerSpellListDto: RiotGamesAPI.LolStaticData.SummonerSpellListDto) => void): any {
+        return new Promise((success, fail) => {
+            this.getJSON(this.parseURL(GLOBAL_URL_1_2 + "summoner-spell"), (summonerSpellList: RiotGamesAPI.LolStaticData.SummonerSpellListDto) => {
                 callback(summonerSpellList);
-            }).catch(function (err) {
+            }).catch((err: errorCode) => {
                 fail(err);
             });
         });
-    };
+    }
+
     /**
         * get summoner spell by summoner spell ID
         * @param     {number}                                         summonerSpellId    Summoner spell ID
         * @param     {RiotGamesAPI.LolStaticData.SummonerSpellDto}    callback           data callback
         */
-    ClassicAPI.prototype.staticDataSummonSpellById = function (summonerSpellId, callback) {
-        var _this = this;
-        return new es6_promise_1.Promise(function (success, fail) {
-            _this.getJSON(_this.parseURL(GLOBAL_URL_1_2 + "summoner-spell/" + summonerSpellId), function (summonerSpell) {
+    public staticDataSummonSpellById(summonerSpellId: number, callback: (runeDto: RiotGamesAPI.LolStaticData.SummonerSpellDto) => void): any {
+        return new Promise((success, fail) => {
+            this.getJSON(this.parseURL(GLOBAL_URL_1_2 + "summoner-spell/" + summonerSpellId), (summonerSpell: RiotGamesAPI.LolStaticData.SummonerSpellDto) => {
                 callback(summonerSpell);
-            }).catch(function (err) {
+            }).catch((err: errorCode) => {
                 fail(err);
             });
         });
-    };
+    }
+
     /**
         * get league of legends  versions
         * @param     {string[]}    callback    data callback
         */
-    ClassicAPI.prototype.staticDataVersion = function (callback) {
-        var _this = this;
-        return new es6_promise_1.Promise(function (success, fail) {
-            _this.getJSON(_this.parseURL(GLOBAL_URL_1_2 + "versions"), function (versions) {
+    public staticDataVersion(callback: (versions: string[]) => void): any {
+        return new Promise((success, fail) => {
+            this.getJSON(this.parseURL(GLOBAL_URL_1_2 + "versions"), (versions: string[]) => {
                 callback(versions);
-            }).catch(function (err) {
+            }).catch((err: errorCode) => {
                 fail(err);
             });
         });
-    };
+    }
     // ******************************************************************************* //
+
     // ******************************** lol-status-v1.0 ****************************** //
     /**
         * get league of legends status
         * @param     {RiotGamesAPI.LolStatus.Shard[]}    callback    data callback
         */
-    ClassicAPI.prototype.getSatus = function (callback) {
-        var _this = this;
-        return new es6_promise_1.Promise(function (success, fail) {
-            _this.getJSON("http://status.leagueoflegends.com/shards", function (shards) {
+    public getSatus(callback: (shardList: RiotGamesAPI.LolStatus.Shard[]) => void): any {
+        return new Promise((success, fail) => {
+            this.getJSON("http://status.leagueoflegends.com/shards", (shards: RiotGamesAPI.LolStatus.Shard[]) => {
                 callback(shards);
-            }).catch(function (err) {
+            }).catch((err: errorCode) => {
                 fail(err);
             });
         });
-    };
+    }
+
     /**
         * get status for a given region
         * @param     {region_e}                        region      region
         * @param     {RiotGamesAPI.LolStatus.Shard}    callback    data callback
         */
-    ClassicAPI.prototype.getSatusByRegion = function (region, callback) {
-        var _this = this;
-        return new es6_promise_1.Promise(function (success, fail) {
-            _this.getJSON("http://status.leagueoflegends.com/shards/" + region_e_TO_string(region), function (shard) {
+    public getSatusByRegion(region: region_e, callback: (shard: RiotGamesAPI.LolStatus.Shard) => void): any {
+        return new Promise((success, fail) => {
+            this.getJSON("http://status.leagueoflegends.com/shards/" + region_e_TO_string(region), (shard: RiotGamesAPI.LolStatus.Shard) => {
                 callback(shard);
-            }).catch(function (err) {
+            }).catch((err: errorCode) => {
                 fail(err);
             });
         });
-    };
+    }
     // ******************************************************************************* //
+
     // ********************************* match-v2.2 ********************************** //
     /**
         * get match infos for a given match ID
         * @param     {number}                            matchId     Match ID
         * @param     {RiotGamesAPI.Match.MatchDetail}    callback    data callback
         */
-    ClassicAPI.prototype.getMatch = function (matchId, callback) {
-        var _this = this;
-        return new es6_promise_1.Promise(function (success, fail) {
-            _this.getJSON(_this.parseURL(URL_2_2 + "match/" + matchId), function (matchDetail) {
+    public getMatch(matchId: number, callback: (matchDetails: RiotGamesAPI.Match.MatchDetail) => void): any {
+        return new Promise((success, fail) => {
+            this.getJSON(this.parseURL(URL_2_2 + "match/" + matchId), (matchDetail: RiotGamesAPI.Match.MatchDetail) => {
                 callback(matchDetail);
-            }).catch(function (err) {
+            }).catch((err: errorCode) => {
                 fail(err);
             });
         });
-    };
+    }
+
     /**
         * get all matches for a given tournament code
         * @param     {string}      tournamentCode    Tournament Code
         * @param     {number[]}    callback          data callback
         */
-    ClassicAPI.prototype.getMatchIdsByTournamentCode = function (tournamentCode, callback) {
-        var _this = this;
-        return new es6_promise_1.Promise(function (success, fail) {
-            _this.getJSON(_this.parseURL(URL_2_2 + "match/by-tournament/" + tournamentCode + "/ids"), function (matchIds) {
+    public getMatchIdsByTournamentCode(tournamentCode: string, callback: (matchIds: number[]) => void): any {
+        return new Promise((success, fail) => {
+            this.getJSON(this.parseURL(URL_2_2 + "match/by-tournament/" + tournamentCode + "/ids"), (matchIds: number[]) => {
                 callback(matchIds);
-            }).catch(function (err) {
+            }).catch((err: errorCode) => {
                 fail(err);
             });
         });
-    };
+    }
+
     /**
         * get match by ID in a tournament
         * @param     {number}                            matchId     Match ID
         * @param     {RiotGamesAPI.Match.MatchDetail}    callback    data callback
         */
-    ClassicAPI.prototype.getMatchForTournament = function (matchId, callback) {
-        var _this = this;
-        return new es6_promise_1.Promise(function (success, fail) {
-            _this.getJSON(_this.parseURL(URL_2_2 + "match/for-tournament/" + matchId), function (matchDetails) {
+    public getMatchForTournament(matchId: number, callback: (matchDetails: RiotGamesAPI.Match.MatchDetail) => void): any {
+        return new Promise((success, fail) => {
+            this.getJSON(this.parseURL(URL_2_2 + "match/for-tournament/" + matchId), (matchDetails: RiotGamesAPI.Match.MatchDetail) => {
                 callback(matchDetails);
-            }).catch(function (err) {
+            }).catch((err: errorCode) => {
                 fail(err);
             });
         });
-    };
+    }
     // ******************************************************************************* //
+
     // ******************************** matchlist-v2.2 ******************************* //
     /**
         * get match list of a summoner
         * @param     {number}                              summonerId    Summoner ID
         * @param     {RiotGamesAPI.MatchList.MatchList}    callback      data callback
         */
-    ClassicAPI.prototype.getMatchList = function (summonerId, callback) {
-        var _this = this;
-        return new es6_promise_1.Promise(function (success, fail) {
-            _this.getJSON(_this.parseURL(URL_2_2 + "matchlist/by-summoner/" + summonerId), function (matchList) {
+    public getMatchList(summonerId: number, callback: (matchList: RiotGamesAPI.MatchList.MatchList) => void): any {
+        return new Promise((success, fail) => {
+            this.getJSON(this.parseURL(URL_2_2 + "matchlist/by-summoner/" + summonerId), (matchList: RiotGamesAPI.MatchList.MatchList) => {
                 callback(matchList);
-            }).catch(function (err) {
+            }).catch((err: errorCode) => {
                 fail(err);
             });
         });
-    };
+    }
     // ******************************************************************************* //
+
     // ********************************** stats-v1.3 ********************************* //
     /**
         * get ranked stats of summoner
         * @param     {number}                               summonerId    Summoner ID
         * @param     {RiotGamesAPI.Stats.RankedStatsDto}    callback      data callback
         */
-    ClassicAPI.prototype.getStatsRanked = function (summonerId, callback) {
-        var _this = this;
-        return new es6_promise_1.Promise(function (success, fail) {
-            _this.getJSON(_this.parseURL(URL_1_3 + "stats/by-summoner/" + summonerId + "/ranked"), function (rankedStats) {
+    public getStatsRanked(summonerId: number, callback: (rankedStatsDto: RiotGamesAPI.Stats.RankedStatsDto) => void): any {
+        return new Promise((success, fail) => {
+            this.getJSON(this.parseURL(URL_1_3 + "stats/by-summoner/" + summonerId + "/ranked"), (rankedStats: RiotGamesAPI.Stats.RankedStatsDto) => {
                 callback(rankedStats);
-            }).catch(function (err) {
+            }).catch((err: errorCode) => {
                 fail(err);
             });
         });
-    };
+    }
+
     /**
         * get summary ranked stats of summoner
         * @param     {number}                                          summonerId    Summoner ID
         * @param     {RiotGamesAPI.Stats.PlayerStatsSummaryListDto}    callback      data callback
         */
-    ClassicAPI.prototype.getStatsSummary = function (summonerId, callback) {
-        var _this = this;
-        return new es6_promise_1.Promise(function (success, fail) {
-            _this.getJSON(_this.parseURL(URL_1_3 + "stats/by-summoner/" + summonerId + "/summary"), function (playerStatsSummaryList) {
+    public getStatsSummary(summonerId: number, callback: (playerStatsSummaryListDto: RiotGamesAPI.Stats.PlayerStatsSummaryListDto) => void): any {
+        return new Promise((success, fail) => {
+            this.getJSON(this.parseURL(URL_1_3 + "stats/by-summoner/" + summonerId + "/summary"), (playerStatsSummaryList: RiotGamesAPI.Stats.PlayerStatsSummaryListDto) => {
                 callback(playerStatsSummaryList);
-            }).catch(function (err) {
+            }).catch((err: errorCode) => {
                 fail(err);
             });
         });
-    };
+    }
     // ******************************************************************************* //
+
     // ******************************** summoner-v1.4 ******************************** //
     /**
         * get summoner infos by Summoner Name
         * @param     {string}                               summonerName    Summoner Name
         * @param     {RiotGamesAPI.Summoner.SummonerDto}    callback        data callback
         */
-    ClassicAPI.prototype.getSummonerByName = function (summonerName, callback) {
-        var _this = this;
-        return new es6_promise_1.Promise(function (success, fail) {
-            _this.getJSON(_this.parseURL(URL_1_4 + "summoner/by-name/" + summonerName), function (summoner) {
+    public getSummonerByName(summonerName: string, callback: (summonerDto: RiotGamesAPI.Summoner.SummonerDto) => void): any {
+        return new Promise((success, fail) => {
+            this.getJSON(this.parseURL(URL_1_4 + "summoner/by-name/" + summonerName), (summoner: RiotGamesAPI.Summoner.SummonerDto) => {
                 callback(summoner[summonerName]);
-            }).catch(function (err) {
+            }).catch((err: errorCode) => {
                 fail(err);
             });
         });
-    };
+    }
+
     /**
         * get summoner infos by summoner ID
         * @param     {number}                               summonerId    Summoner ID
         * @param     {RiotGamesAPI.Summoner.SummonerDto}    callback      data callback
         */
-    ClassicAPI.prototype.getSummonerById = function (summonerId, callback) {
-        var _this = this;
-        return new es6_promise_1.Promise(function (success, fail) {
-            _this.getJSON(_this.parseURL(URL_1_4 + "summoner/" + summonerId), function (summoner) {
+    public getSummonerById(summonerId: number, callback: (summonerDto: RiotGamesAPI.Summoner.SummonerDto) => void): any {
+        return new Promise((success, fail) => {
+            this.getJSON(this.parseURL(URL_1_4 + "summoner/" + summonerId), (summoner: RiotGamesAPI.Summoner.SummonerDto) => {
                 callback(summoner[summonerId]);
-            }).catch(function (err) {
+            }).catch((err: errorCode) => {
                 fail(err);
             });
         });
-    };
+    }
+
     /**
         * get masteries of a summoner
         * @param     {number}                                   summonerId    Summoner ID
         * @param     {RiotGamesAPI.Summoner.MasteryPagesDto}    callback      data callback
         */
-    ClassicAPI.prototype.getSummonerMasteries = function (summonerId, callback) {
-        var _this = this;
-        return new es6_promise_1.Promise(function (success, fail) {
-            _this.getJSON(_this.parseURL(URL_1_4 + "summoner/" + summonerId + "/masteries"), function (masteryPages) {
+    public getSummonerMasteries(summonerId: number, callback: (masteryPagesDto: RiotGamesAPI.Summoner.MasteryPagesDto) => void): any {
+        return new Promise((success, fail) => {
+            this.getJSON(this.parseURL(URL_1_4 + "summoner/" + summonerId + "/masteries"), (masteryPages: RiotGamesAPI.Summoner.MasteryPagesDto) => {
                 callback(masteryPages[summonerId]);
-            }).catch(function (err) {
+            }).catch((err: errorCode) => {
                 fail(err);
             });
         });
-    };
+    }
+
     /**
         * get the Summoner Name of a summoner ID
         * @param     {number}    summonerId    Summoner ID
         * @param     {string}    callback      data callback
         */
-    ClassicAPI.prototype.getSummonerName = function (summonerId, callback) {
-        var _this = this;
-        return new es6_promise_1.Promise(function (success, fail) {
-            _this.getJSON(_this.parseURL(URL_1_4 + "summoner/" + summonerId + "/name"), function (summonerName) {
+    public getSummonerName(summonerId: number, callback: (summonerName: string) => void): any {
+        return new Promise((success, fail) => {
+            this.getJSON(this.parseURL(URL_1_4 + "summoner/" + summonerId + "/name"), (summonerName: JSON) => {
                 callback(summonerName[summonerId]);
-            }).catch(function (err) {
+            }).catch((err: errorCode) => {
                 fail(err);
             });
         });
-    };
+    }
+
     /**
         * get the runes of a summoner
         * @param     {number}                                summonerId    Summoner ID
         * @param     {RiotGamesAPI.Summoner.RunePagesDto}    callback      data callback
         */
-    ClassicAPI.prototype.getSummonerRunes = function (summonerId, callback) {
-        var _this = this;
-        return new es6_promise_1.Promise(function (success, fail) {
-            _this.getJSON(_this.parseURL(URL_1_4 + "summoner/" + summonerId + "/runes"), function (runePages) {
+    public getSummonerRunes(summonerId: number, callback: (runePagesDto: RiotGamesAPI.Summoner.RunePagesDto) => void): any {
+        return new Promise((success, fail) => {
+            this.getJSON(this.parseURL(URL_1_4 + "summoner/" + summonerId + "/runes"), (runePages: RiotGamesAPI.Summoner.RunePagesDto) => {
                 callback(runePages[summonerId]);
-            }).catch(function (err) {
+            }).catch((err: errorCode) => {
                 fail(err);
             });
         });
-    };
+    }
     // ******************************************************************************* //
+
     // ********************************* team-v2.4 *********************************** //
     /**
         * get teams of a summoner
         * @param     {number}                         summonerId    Summoner ID
         * @param     {RiotGamesAPI.Team.TeamDto[]}    callback      data callback
         */
-    ClassicAPI.prototype.getTeamsBySummoner = function (summonerId, callback) {
-        var _this = this;
-        return new es6_promise_1.Promise(function (success, fail) {
-            _this.getJSON(_this.parseURL(URL_2_4 + "team/by-summoner/" + summonerId), function (teamList) {
+    public getTeamsBySummoner(summonerId: number, callback: (teamsList: RiotGamesAPI.Team.TeamDto[]) => void): any {
+        return new Promise((success, fail) => {
+            this.getJSON(this.parseURL(URL_2_4 + "team/by-summoner/" + summonerId), (teamList: RiotGamesAPI.Team.TeamDto) => {
                 callback(teamList[summonerId]);
-            }).catch(function (err) {
+            }).catch((err: errorCode) => {
                 fail(err);
             });
         });
-    };
+    }
+
     /**
         * get Team infos by Team ID
         * @param     {string}                       teamId      Team ID
         * @param     {RiotGamesAPI.Team.TeamDto}    callback    data callback
         */
-    ClassicAPI.prototype.getTeamById = function (teamId, callback) {
-        var _this = this;
-        return new es6_promise_1.Promise(function (success, fail) {
-            _this.getJSON(_this.parseURL(URL_2_4 + "team/" + teamId), function (team) {
+    public getTeamById(teamId: string, callback: (teamDto: RiotGamesAPI.Team.TeamDto) => void): any {
+        return new Promise((success, fail) => {
+            this.getJSON(this.parseURL(URL_2_4 + "team/" + teamId), (team: RiotGamesAPI.Team.TeamDto) => {
                 callback(team[teamId]);
-            }).catch(function (err) {
+            }).catch((err: errorCode) => {
                 fail(err);
             });
         });
-    };
-    return ClassicAPI;
-}());
-exports.ClassicAPI = ClassicAPI;
+    }
+    // ******************************************************************************* //
+}

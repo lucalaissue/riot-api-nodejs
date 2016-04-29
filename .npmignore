@@ -1,0 +1,6 @@
+*.ts
+gulpfile.js
+typings.json
+tsconfig.json
+definitions
+node_modules

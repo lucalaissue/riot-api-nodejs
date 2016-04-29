@@ -1,8 +1,12 @@
 {
   "name": "riot-api-nodejs",
-  "version": "1.0.3",
+  "version": "1.1.0",
   "description": "A NodeJS Library for Riot Games API",
   "main": "index.js",
+  "scripts": {
+    "build": "gulp",
+    "dev": "npm i && npm i typings && npm i gulp && npm i gulp-dest && npm i gulp-typescript && npm i gulp-plumber && typings install"
+  },
   "dependencies": {
     "es6-promise": "^3.0.2",
     "request": "^2.67.0"
