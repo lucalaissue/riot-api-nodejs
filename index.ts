@@ -2,8 +2,6 @@
 // Project: https://developer.riotgames.com/
 // Library by : Luca Laissue <https://github.com/zafixlrp>
 
-/// <reference path="./typings/main.d.ts"/>
-
 import * as request from "request";
 import {Promise} from "es6-promise";
 
