@@ -5,10 +5,10 @@
   "main": "index.js",
   "scripts": {
     "build": "gulp",
-    "dev": "npm i && npm i typings && npm i gulp && npm i gulp-dest && npm i gulp-typescript && npm i gulp-plumber && typings install"
+    "dev-install": "npm i && npm i typescript@1.8.10 && npm i typings@1.3.3 && typings install"
   },
   "dependencies": {
-    "es6-promise": "^3.0.2",
+    "es6-promise": "^3.2.1",
     "request": "^2.67.0"
   },
   "devDependencies": {},
