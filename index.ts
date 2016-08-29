@@ -3,15 +3,15 @@
 // Library by : Luca Laissue <https://github.com/zafixlrp>
 
 import * as request from "request";
-import {Promise} from "es6-promise";
 
+const BASE_URL = "https://{region}.api.pvp.net/api/lol/{region}/"
 // ClassicURLS
-const URL_1_2: string = "https://{region}.api.pvp.net/api/lol/{region}/v1.2/";
-const URL_1_3: string = "https://{region}.api.pvp.net/api/lol/{region}/v1.3/";
-const URL_1_4: string = "https://{region}.api.pvp.net/api/lol/{region}/v1.4/";
-const URL_2_2: string = "https://{region}.api.pvp.net/api/lol/{region}/v2.2/";
-const URL_2_4: string = "https://{region}.api.pvp.net/api/lol/{region}/v2.4/";
-const URL_2_5: string = "https://{region}.api.pvp.net/api/lol/{region}/v2.5/";
+const URL_1_2: string = `${BASE_URL}v1.2/`;
+const URL_1_3: string = `${BASE_URL}v1.3/`;
+const URL_1_4: string = `${BASE_URL}v1.4/`;
+const URL_2_2: string = `${BASE_URL}v2.2/`;
+const URL_2_4: string = `${BASE_URL}v2.4/`;
+const URL_2_5: string = `${BASE_URL}v2.5/`;
 
 // ChampionMasteryURL
 const CHAMPIONMASTERY_URL: string = "https://{region}.api.pvp.net/championmastery/location/{endpoint}/";
@@ -111,37 +111,33 @@ const ERROR_CODES = {
     503: "Service unavailable"
 };
 
-
 /**
-    * Tournament API
-    */
-export class TournamentAPI {
+ * Base API
+ */
+export class API {
     private ApiKeys: string[];
     private ApiKey: string;
 
-    /**
-        * TournamentAPI Constructor
-        */
-    public constructor(...ApiKeys: string[]){
+    public constructor(ApiKeys: string[]){
         this.ApiKeys = ApiKeys;
         this.ApiKey = ApiKeys[0];
     }
 
     /**
-        * Change the Api Key for the next requests
-        */
+     * Change the Api Key for the next requests
+     */
     private switchApiKey(): void {
         this.ApiKey = this.ApiKeys[(this.ApiKeys.indexOf(this.ApiKey) + 1) % this.ApiKeys.length];
     }
 
-    /**
+        /**
         * Send a request to the Riot Games Api and return a formatted json via a callback
         * @param     {string}    url         request url
         * @param     {string}    method      method(post / put / get)
         * @param     {[type]}    data        body parameters
         * @param     {(JSON}     callback    callback function with formatted JSON
         */
-    private getJSON(url: string, method: string, data, callback: (JSON) => void): any{
+    public getJSON(url: string, method: string, data: any): any{
         this.switchApiKey();
         return new Promise((success, fail) => {
             request(
@@ -158,12 +154,12 @@ export class TournamentAPI {
             }, (err: any, res: any, body: string) => {
                 if (res.statusCode == 200 || res.statusCode == 204) {
                     try{
-                        callback(JSON.parse(body));
+                        success(JSON.parse(body));
                     } catch (E){
-                        callback(body);
+                        success(body);
                     }
                 } else if (res.statusCode == 429){
-                    setTimeout(() => {this.getJSON(url, method, data, callback)}, res.headers["retry-after"] * 1000);
+                    setTimeout(() => {this.getJSON(url, method, data).then(success)}, 10000);
                 } else {
                     fail({code: res.statusCode, message: ERROR_CODES[res.statusCode]});
                 }
@@ -171,7 +167,37 @@ export class TournamentAPI {
         });
     }
 
+    /**
+    * get the API Key that is used for the requests
+    * @return    {string}    the current API Key
+    */
+    public getCurrentApiKey(): string {
+        return this.ApiKey;
+    }
+
+
+    /**
+     * set the API Keys
+     * @param    {string[]}    ApiKeys    the API Keys
+     */
+    public setApikeys(ApiKeys: string[]): void {
+        this.ApiKeys = ApiKeys;
+    }
+}
+
+
+/**
+    * Tournament API
+    */
+export class TournamentAPI extends API{
+
+
+    constructor(...apiKeys: string[]) {
+        super(apiKeys);
+    }
+
     // **************************** tournament-provider-v1 *************************** //
+
     /**
         * create tournament Codes for a given tournament
         * @param     {number}                                                      tournamentId    the ID of the tournament
@@ -179,10 +205,10 @@ export class TournamentAPI {
         * @param     {RiotGamesAPI.TournamentProvider.TournamentCodeParameters}    params          Tournament Code parameters
         * @param     {number[]}                                                    callback        Tournaments Codes                                                                    [description]
         */
-    public createTournamentCodes(tournamentId: number, count: number, params: RiotGamesAPI.TournamentProvider.TournamentCodeParameters, callback: (tournamentCodes: number[]) => void): any {
+    public createTournamentCodes(tournamentId: number, count: number, params: RiotGamesAPI.TournamentProvider.TournamentCodeParameters): Promise<(tournamentCodes: number[]) => void> {
         return new Promise((success, fail) => {
-            this.getJSON(TOURNAMENT_URL_1 + "code?tournamentId=" + tournamentId + "&count=" + count, "post", params, (data: any) => {
-                callback(data);
+            this.getJSON(TOURNAMENT_URL_1 + "code?tournamentId=" + tournamentId + "&count=" + count, "post", params).then((data) => {
+                success(data);
             }).catch((err: errorCode) => {
                 fail(err);
             });
@@ -194,10 +220,10 @@ export class TournamentAPI {
         * @param     {string}                                               tournamentCode    Tournament Code
         * @param     {RiotGamesAPI.TournamentProvider.TournamentCodeDto}    callback          Tournament Infos
         */
-    public getTournamentByCode(tournamentCode: string, callback: (tournament: RiotGamesAPI.TournamentProvider.TournamentCodeDto) => void): any{
+    public getTournamentByCode(tournamentCode: string): Promise<(tournament: RiotGamesAPI.TournamentProvider.TournamentCodeDto) => void>{
         return new Promise((success, fail) => {
-            this.getJSON(TOURNAMENT_URL_1 + "code?tournamentCode=" + tournamentCode, "get", {}, (tournamentCodeDto: RiotGamesAPI.TournamentProvider.TournamentCodeDto) => {
-                callback(tournamentCodeDto);
+            this.getJSON(TOURNAMENT_URL_1 + "code?tournamentCode=" + tournamentCode, "get", null).then((data) => {
+                success(data);
             }).catch((err: errorCode) => {
                 fail(err);
             });
@@ -210,10 +236,10 @@ export class TournamentAPI {
         * @param     {RiotGamesAPI.TournamentProvider.TournamentCodeUpdateParameters}    params            parameters to edit
         * @param     {(}                                                                 callback          callback if succes
         */
-    public editTournamentByCode(tournamentCode: string, params: RiotGamesAPI.TournamentProvider.TournamentCodeUpdateParameters, callback: () => void): any{
+    public editTournamentByCode(tournamentCode: string, params: RiotGamesAPI.TournamentProvider.TournamentCodeUpdateParameters): Promise<() => void>{
         return new Promise((success, fail) => {
-            this.getJSON(TOURNAMENT_URL_1 + "code/" + tournamentCode, "put", params, () => {
-                callback();
+            this.getJSON(TOURNAMENT_URL_1 + "code/" + tournamentCode, "put", params).then(() => {
+                success();
             }).catch((err: errorCode) => {
                 fail(err);
             });
@@ -225,10 +251,10 @@ export class TournamentAPI {
         * @param     {string}                                           tournamentCode    the tournament code to get the lobby events
         * @param     {RiotGamesAPI.TournamentProvider.LobbyEventDto}    callback          lobby events
         */
-    public getLobbyEventByCode(tournamentCode: string, callback: (lobbyEventDto: RiotGamesAPI.TournamentProvider.LobbyEventDto) => void): any{
+    public getLobbyEventByCode(tournamentCode: string): Promise<(lobbyEventDto: RiotGamesAPI.TournamentProvider.LobbyEventDto) => void>{
         return new Promise((success, fail) => {
-            this.getJSON(TOURNAMENT_URL_1 + "lobby/events/by-code/" + tournamentCode, "get", {},(lobbyEvent: RiotGamesAPI.TournamentProvider.LobbyEventDto) => {
-                callback(lobbyEvent);
+            this.getJSON(TOURNAMENT_URL_1 + "lobby/events/by-code/" + tournamentCode, "get", {}).then((data) => {
+                success(data);
             }).catch((err: errorCode) => {
                 fail(err);
             });
@@ -241,10 +267,10 @@ export class TournamentAPI {
         * @param     {string}      url         url of callback for the POST notifications
         * @param     {number}      callback    returns  the tounament provider ID
         */
-    public registerProvider(region: region_e, url: string, callback: (providerId: number) => void): any {
+    public registerProvider(region: region_e, url: string): Promise<(providerId: number) => void> {
         return new Promise((success, fail) => {
-            this.getJSON(TOURNAMENT_URL_1 + "provider", "post", {"region": region_e_TO_string(region), "url": url}, (data: any) => {
-                callback(data);
+            this.getJSON(TOURNAMENT_URL_1 + "provider", "post", {"region": region_e_TO_string(region), "url": url}).then((data) => {
+                success(data);
             }).catch((err: errorCode) => {
                 fail(err);
             });
@@ -257,10 +283,10 @@ export class TournamentAPI {
         * @param     {number}    providerId    Provider ID
         * @param     {number}    callback      returns the tournament ID
         */
-    public registerTournament(name: string, providerId: number, callback: (tournamentId: number) => void): any {
+    public registerTournament(name: string, providerId: number): Promise<(tournamentId: number) => void> {
         return new Promise((success, fail) => {
-            this.getJSON(TOURNAMENT_URL_1 + "tournament", "post",{"name": name, "providerId": providerId}, (data: any) => {
-                callback(data);
+            this.getJSON(TOURNAMENT_URL_1 + "tournament", "post",{"name": name, "providerId": providerId}).then((data: any) => {
+                success(data);
             }).catch((err: errorCode) => {
                 fail(err);
             });
