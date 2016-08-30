@@ -13,8 +13,13 @@ $ npm install riot-api-nodejs
 
 ## Dev install
 ```
+// clone
+$ git clone https://github.com/ZafixLRP/riot-api-nodejs.git
+
+// install
 $ npm run dev-install
 
+// build
 $ npm run build
 ```
 
@@ -184,6 +189,19 @@ registerProvider(region: region_e, url: string);
 
 registerTournament(name: string, providerId: number);
 
+```
+
+# Extends API
+
+```javascript
+var riotApi = require("riot-api-nodejs");
+
+class myNewApi Extends riotApi.classicApi {
+    // add your functions
+}
+
+let api = myNewApi(...);
+api.getSummonerName("Zafix").then((...) => { ... })
 ```
 
 ## Contributor(s)
