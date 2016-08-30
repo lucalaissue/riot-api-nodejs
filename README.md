@@ -13,7 +13,7 @@ $ npm install riot-api-nodejs
 
 ## Dev install
 ```
-$ npm run dev
+$ npm run dev-install
 
 $ npm run build
 ```

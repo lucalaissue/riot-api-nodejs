@@ -4,7 +4,7 @@
   "description": "A NodeJS Library for Riot Games API",
   "main": "index.js",
   "scripts": {
-    "build": "tsc && tsc -d index.ts",
+    "build": "tsc -d",
     "dev-install": "npm i && npm i typescript@1.8.10 && npm i typings@1.3.3 && typings install"
   },
   "dependencies": {
