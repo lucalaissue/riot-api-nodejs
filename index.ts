@@ -313,12 +313,6 @@ export class ClassicAPI extends API{
     }
 
     /**
-        * set the API Keys
-        * @param    {string[]}    ApiKeys    the API Keys
-        */
-
-
-    /**
         * set the region where you want to send requests
         * @param    {region_e}    region    the region
         */
