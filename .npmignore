@@ -1,4 +1,4 @@
-index.ts
+*.ts
 typings.json
 tsconfig.json
 node_modules
