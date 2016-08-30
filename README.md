@@ -1,6 +1,6 @@
 # riot-api-nodejs
 
-## V1.1.0
+## V2.0.0
 
 ## description
 
@@ -11,15 +11,15 @@ A nodeJS library for the Riot Games Api
 $ npm install riot-api-nodejs
 ```
 
-## definitions
-```
-$ typings install riot-api-nodejs
-```
-
 ## Dev install
 ```
-$ npm run dev
+// clone
+$ git clone https://github.com/ZafixLRP/riot-api-nodejs.git
 
+// install
+$ npm run dev-install
+
+// build
 $ npm run build
 ```
 
@@ -31,8 +31,8 @@ var classicApi = new riotApi.ClassicApi(["API-KEY1", "API-KEY2"], riotApi.region
 
 var tournamentAPI = new riotApi.TournamentAPI("API_KEY1", "API_KEY2");
 
-classicApi.getSummonerByName("zafix", function(summoner){
-    //Succes
+classicApi.getSummonerByName("zafix").then((summoner) => {
+    return classicApi.getChampionMasteryScore(summoner.id);
 }).catch(funtion(err){
     //error
 });
@@ -43,131 +43,131 @@ classicApi.getSummonerByName("zafix", function(summoner){
 
 ##### champion-v1.2
 ```javascript
-getChampions(callback : Function);
+getChampions();
 
-getChampionById(id: number, callback : Function);
+getChampionById(id: number);
 
-getFreeToPlayChampions(callback : Function);
+getFreeToPlayChampions();
 
-getFreeToPlayChampions(callback : Function);
+getFreeToPlayChampions();
 ```
 ##### championmastery
 ```javascript
-getChampionMastery(summonerId: number, championId: number, callback: Function);
+getChampionMastery(summonerId: number, championId: number);
 
-getChampionMasteryBySummoner(summonerId: number, callback: Function);
+getChampionMasteryBySummoner(summonerId: number);
 
-getChampionMasteryScore(summonerId: number, callback: Function);
+getChampionMasteryScore(summonerId: number);
 
-getTopChampionMastery(summonerId, callback: Function);
+getTopChampionMastery(summonerId);
 ```
 ##### current-game-v1.0
 ```javascript
-getCurrentGame(summonerId: number, callback : Function);
+getCurrentGame(summonerId: number);
 ```
 ##### featured-games-v1.0
 ```javascript
-getFeaturedGame(callback : Function);
+getFeaturedGame();
 ```
 ##### game-v1.3
 ```javascript
-getRecentGames(summonerId: number, callback : Function);
+getRecentGames(summonerId: number);
 ```
 ##### league-v2.5
 ```javascript
-getLeagueBySummonerId(summonerId: number, callback : Function);
+getLeagueBySummonerId(summonerId: number);
 
-getLeagueBySummonerIdEntry(summonerId: number, callback : Function);
+getLeagueBySummonerIdEntry(summonerId: number);
 
-getLeagueByTeamId(teamId: string, callback : Function);
+getLeagueByTeamId(teamId: string);
 
-getLeagueByTeamIdEntry(teamId: string, callback : Function);
+getLeagueByTeamIdEntry(teamId: string);
 
-getChallengers_SOLO(callback : Function);
+getChallengers_SOLO();
 
-getChallengers_3x3(callback : Function);
+getChallengers_3x3();
 
-getChallengers_5x5(callback : Function);
+getChallengers_5x5();
 
-getMasters_SOLO(callback : Function);
+getMasters_SOLO();
 
-getMasters_3x3(callback : Function);
+getMasters_3x3();
 
-getMasters_5x5(callback : Function);
+getMasters_5x5();
 ```
 ##### lol-static-data-v1.2
 ```javascript
-staticDataChampions(callback : Function);
+staticDataChampions();
 
-staticDataChampionById(championsId: number, callback : Function);
+staticDataChampionById(championsId: number);
 
-staticDataItems(callback : Function);
+staticDataItems();
 
-staticDataItemById(itemId: number, callback : Function);
+staticDataItemById(itemId: number);
 
-staticDataLanguagesStrings(callback : Function);
+staticDataLanguagesStrings();
 
-staticDataLanguages(callback : Function);
+staticDataLanguages();
 
-staticDataMap(callback : Function);
+staticDataMap();
 
-staticDataMastery(callback : Function);
+staticDataMastery();
 
-staticDataMasteryById(masteryId: number, callback : Function);
+staticDataMasteryById(masteryId: number);
 
-staticDataRealm(callback : Function);
+staticDataRealm();
 
-staticDataRunes(callback : Function);
+staticDataRunes();
 
-staticDataRuneById(runeId: number, callback : Function);
+staticDataRuneById(runeId: number);
 
-staticDataSummonerSpells(callback : Function);
+staticDataSummonerSpells();
 
-staticDataSummonSpellById(summonerSpellId: number, callback : Function);
+staticDataSummonSpellById(summonerSpellId: number);
 
-staticDataVersion(callback : Function);
+staticDataVersion();
 ```
 ##### lol-status-v1.0
 ```javascript
-getSatus(callback : Function);
+getSatus();
 
-getSatusByRegion(region: region_e, callback : Function);
+getSatusByRegion(region: region_e);
 ```
 ##### match-v2.2
 ```javascript
-getMatch(matchId: number, callback : Function);
+getMatch(matchId: number);
 
-getMatchIdsByTournamentCode(tournamentCode: string, callback: Function);
+getMatchIdsByTournamentCode(tournamentCode: string);
 
-getMatchForTournament(matchId: number, callback: Function);
+getMatchForTournament(matchId: number);
 ```
 ##### matchlist-v2.2
 ```javascript
-getMatchList(summonerId: number, callback : Function);
+getMatchList(summonerId: number);
 ```
 ##### stats-v1.3
 ```javascript
-getStatsRanked(summonerId: number, callback : Function);
+getStatsRanked(summonerId: number);
 
-getStatsSummary(summonerId: number, callback : Function);
+getStatsSummary(summonerId: number);
 ```
 ##### summoner-v1.4
 ```javascript
-getSummonerByName(summonerName: string, callback : Function);
+getSummonerByName(summonerName: string);
 
-getSummonerById(summonerId: number, callback : Function);
+getSummonerById(summonerId: number);
 
-getSummonerMasteries(summonerId: number, callback : Function);
+getSummonerMasteries(summonerId: number);
 
-getSummonerName(summonerId: number, callback : Function);
+getSummonerName(summonerId: number);
 
-getSummonerRunes(summonerId: number,callback : Function);
+getSummonerRunes(summonerId: number);
 ```
 ###### team-v2.4
 ```javascript
-getTeamsBySummoner(summonerId: number, callback : Function);
+getTeamsBySummoner(summonerId: number);
 
-getTeamById(teamId: string, callback : Function);
+getTeamById(teamId: string);
 ```
 <hr>
 
@@ -177,23 +177,35 @@ getTeamById(teamId: string, callback : Function);
 
 ```javascript
 
-createTournamentCodes(tournamentId: number, count: number, params: TournamentCodeParameters, callback: Fuction);
+createTournamentCodes(tournamentId: number, count: number, params: TournamentCodeParameters);
 
-getTournamentByCode(tournamentCode: string, callback: Fuction);
+getTournamentByCode(tournamentCode: string);
 
-editTournamentByCode(tournamentCode: string, params: TournamentCodeUpdateParameters, callback: Fuction);
+editTournamentByCode(tournamentCode: string, params: TournamentCodeUpdateParameters);
 
-getLobbyEventByCode(tournamentCode: string, callback: Fuction);
+getLobbyEventByCode(tournamentCode: string);
 
-registerProvider(region: region_e, url: string, callback: Fuction);
+registerProvider(region: region_e, url: string);
 
-registerTournament(name: string, providerId: number, callback: Fuction);
+registerTournament(name: string, providerId: number);
 
+```
+
+# Extends API
+
+```javascript
+var riotApi = require("riot-api-nodejs");
+
+class myNewApi Extends riotApi.classicApi {
+    // add your functions
+}
+
+let api = myNewApi(...);
+api.getSummonerName("Zafix").then((...) => { ... })
 ```
 
 ## Contributor(s)
 - [Zafix - https://github.com/zafixLRP](https://github.com/zafixLRP)
-- [CoreyTrombley - https://github.com/coreytrombley](https://github.com/coreytrombley)
 
 <hr>
 
