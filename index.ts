@@ -3,7 +3,6 @@
 // Library by : Luca Laissue <https://github.com/zafixlrp>
 
 import request = require("request");
-import fs = require("fs");
 
 export const BASE_URL = "https://{region}.api.pvp.net/api/lol/{region}/"
 // ClassicURLS
@@ -115,7 +114,7 @@ const ERROR_CODES = {
 /**
  * Base API
  */
-class API {
+export class API {
     private ApiKeys: string[];
     private ApiKey: string;
 

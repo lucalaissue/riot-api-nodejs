@@ -1,5 +1,3 @@
-/// <reference path="./riot-games-api/index.d.ts" />
-
 export declare const BASE_URL: string;
 export declare const URL_1_2: string;
 export declare const URL_1_3: string;

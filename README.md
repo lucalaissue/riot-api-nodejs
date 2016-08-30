@@ -1,6 +1,6 @@
 # riot-api-nodejs
 
-## V1.1.0
+## V2.0.0
 
 ## description
 
@@ -9,11 +9,6 @@ A nodeJS library for the Riot Games Api
 ## install
 ```
 $ npm install riot-api-nodejs
-```
-
-## definitions
-```
-$ typings install riot-api-nodejs
 ```
 
 ## Dev install
@@ -31,8 +26,8 @@ var classicApi = new riotApi.ClassicApi(["API-KEY1", "API-KEY2"], riotApi.region
 
 var tournamentAPI = new riotApi.TournamentAPI("API_KEY1", "API_KEY2");
 
-classicApi.getSummonerByName("zafix", function(summoner){
-    //Succes
+classicApi.getSummonerByName("zafix").then((summoner) => {
+    return classicApi.getChampionMasteryScore(summoner.id);
 }).catch(funtion(err){
     //error
 });
