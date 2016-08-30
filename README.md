@@ -1,6 +1,6 @@
 # riot-api-nodejs
 
-## V2.0.1
+## V2.0.2
 
 ## description
 
