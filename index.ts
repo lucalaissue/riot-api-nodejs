@@ -2,16 +2,17 @@
 // Project: https://developer.riotgames.com/
 // Library by : Luca Laissue <https://github.com/zafixlrp>
 
-import * as request from "request";
+import request = require("request");
+import fs = require("fs");
 
-const BASE_URL = "https://{region}.api.pvp.net/api/lol/{region}/"
+export const BASE_URL = "https://{region}.api.pvp.net/api/lol/{region}/"
 // ClassicURLS
-const URL_1_2: string = `${BASE_URL}v1.2/`;
-const URL_1_3: string = `${BASE_URL}v1.3/`;
-const URL_1_4: string = `${BASE_URL}v1.4/`;
-const URL_2_2: string = `${BASE_URL}v2.2/`;
-const URL_2_4: string = `${BASE_URL}v2.4/`;
-const URL_2_5: string = `${BASE_URL}v2.5/`;
+export const URL_1_2: string = `${BASE_URL}v1.2/`;
+export const URL_1_3: string = `${BASE_URL}v1.3/`;
+export const URL_1_4: string = `${BASE_URL}v1.4/`;
+export const URL_2_2: string = `${BASE_URL}v2.2/`;
+export const URL_2_4: string = `${BASE_URL}v2.4/`;
+export const URL_2_5: string = `${BASE_URL}v2.5/`;
 
 // ChampionMasteryURL
 const CHAMPIONMASTERY_URL: string = "https://{region}.api.pvp.net/championmastery/location/{endpoint}/";
@@ -145,7 +146,7 @@ class API {
                 url: url,
                 method: method,
                 headers: {
-                    "User-Agent": "request",
+                    "User-Agent": "Nodejs Server Request",
                     "Accept-Charset": "ISO-8859-1, utf-8",
                     "X-Riot-Token": this.ApiKey
                 },
@@ -159,13 +160,14 @@ class API {
                         success(body);
                     }
                 } else if (res.statusCode == 429){
-                    setTimeout(() => {this.getJSON(url, method, data).then(success)}, 10000);
+                    setTimeout(() => {this.getJSON(url, method, data).then(success)}, res["Retry-After"]*1000);
                 } else {
                     fail({code: res.statusCode, message: ERROR_CODES[res.statusCode]});
                 }
             });
         });
     }
+
     public request(url: string, method: string, data: any, prop?: string): Promise<any> {
         return new Promise((success, fail) => {
             this.getJSON(url, method, data).then((data) => {
@@ -294,7 +296,7 @@ export class ClassicAPI extends API{
         * @param     {string}    unparsedURL    the URL to parse
         * @return    {string}                   the Parsed URL
         */
-    private parseURL(unparsedURL: string): string{
+    public parseURL(unparsedURL: string): string{
         let parsedURL = unparsedURL.replace(/{region}/g, region_e_TO_string(this.region));
         parsedURL = parsedURL.replace(/{endpoint}/g, region_e_TO_endpointString(this.region));
 
