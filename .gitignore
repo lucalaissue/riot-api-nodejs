@@ -1,5 +1,3 @@
 *.js
 typings
 node_modules
-
-!gulpfile.js

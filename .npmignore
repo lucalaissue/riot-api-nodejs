@@ -1,5 +1,4 @@
 *.ts
-gulpfile.js
 typings.json
 tsconfig.json
 definitions
