@@ -1,0 +1,2 @@
+language: typescript
+script: npm run test
