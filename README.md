@@ -1,3 +1,8 @@
+![build](https://travis-ci.org/ZafixLRP/riot-api-nodejs.svg?branch=master)
+![download per month](https://img.shields.io/npm/dm/riot-api-nodejs.svg)
+![version](https://img.shields.io/npm/v/riot-api-nodejs.svg)
+![coverage](https://img.shields.io/coveralls/zafix/riot-api-nodejs/master.svg)
+
 # riot-api-nodejs
 
 ## V2.0.2
