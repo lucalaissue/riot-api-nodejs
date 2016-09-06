@@ -1,4 +1,5 @@
 *.ts
+.travis.yml
 typings.json
 tsconfig.json
 node_modules
