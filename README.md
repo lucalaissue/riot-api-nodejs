@@ -53,8 +53,6 @@ getChampions();
 getChampionById(id: number);
 
 getFreeToPlayChampions();
-
-getFreeToPlayChampions();
 ```
 ##### championmastery
 ```javascript
@@ -134,9 +132,9 @@ staticDataVersion();
 ```
 ##### lol-status-v1.0
 ```javascript
-getSatus();
+getStatus();
 
-getSatusByRegion(region: region_e);
+getStatusByRegion(region: region_e);
 ```
 ##### match-v2.2
 ```javascript
