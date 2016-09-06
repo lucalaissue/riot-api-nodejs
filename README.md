@@ -53,8 +53,6 @@ getChampions();
 getChampionById(id: number);
 
 getFreeToPlayChampions();
-
-getFreeToPlayChampions();
 ```
 ##### championmastery
 ```javascript
