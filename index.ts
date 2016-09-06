@@ -629,7 +629,7 @@ export class ClassicAPI extends API{
      * get league of legends status
      * @param     {RiotGamesAPI.LolStatus.Shard[]}    callback    data callback
      */
-    public getSatus(): Promise<RiotGamesAPI.LolStatus.Shard[]> {
+    public getStatus(): Promise<RiotGamesAPI.LolStatus.Shard[]> {
         return this.request("http://status.leagueoflegends.com/shards", "get", null);
     }
 
@@ -638,7 +638,7 @@ export class ClassicAPI extends API{
      * @param     {region_e}                        region      region
      * @param     {RiotGamesAPI.LolStatus.Shard}    callback    data callback
      */
-    public getSatusByRegion(region: region_e): Promise<RiotGamesAPI.LolStatus.Shard> {
+    public getStatusByRegion(region: region_e): Promise<RiotGamesAPI.LolStatus.Shard> {
         return this.request("http://status.leagueoflegends.com/shards/" + region_e_TO_string(region), "get", null);
     }
     // ******************************************************************************* //
