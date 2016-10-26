@@ -25,63 +25,37 @@ const URL_SPECTATOR_1_0: string = "https://{region}.api.pvp.net/observer-mode/re
 // Tournament ULRS
 const TOURNAMENT_URL_1: string = "https://global.api.pvp.net/tournament/public/v1/";
 
-function region_e_TO_endpointString(param: region_e){
-    switch (param){
-        case region_e.BR:
-            return "BR1";
-        case region_e.EUNE:
-            return "EUNE1";
-        case region_e.EUW:
-            return "EUW1";
-        case region_e.KR:
-            return "KR";
-        case region_e.LAN:
-            return "LA1";
-        case region_e.LAS:
-            return "LA2";
-        case region_e.NA:
-            return "NA1";
-        case region_e.OCE:
-            return "OCE1";
-        case region_e.TR:
-            return "TR1";
-        case region_e.RU:
-            return "RU";
-        case region_e.PBE:
-            return "PBE1";
-    }
-}
-
-function region_e_TO_string(param: region_e){
-    switch (param){
-        case region_e.BR:
-            return "br";
-        case region_e.EUNE:
-            return "eune";
-        case region_e.EUW:
-            return "euw";
-        case region_e.KR:
-            return "kr";
-        case region_e.LAN:
-            return "lan";
-        case region_e.LAS:
-            return "las";
-        case region_e.NA:
-            return "na";
-        case region_e.OCE:
-            return "oce";
-        case region_e.TR:
-            return "tr";
-        case region_e.RU:
-            return "ru";
-        case region_e.PBE:
-            return "pbe";
-    }
-}
-
+const REGIONS = {
+    endpointStrings: [
+        "BR1",
+        "EUNE1",
+        "EUW1",
+        "KR",
+        "LA1",
+        "LA2",
+        "NA1",
+        "OCE1",
+        "TR1",
+        "RU",
+        "PBE1"
+    ],
+    strings: [
+        "br",
+        "eune",
+        "euw",
+        "kr",
+        "lan",
+        "las",
+        "na",
+        "oce",
+        "tr",
+        "ru",
+        "pbe"
+    ]
+};
 
 // Regions List
-export enum region_e{
+export enum region_e {
     BR,
     EUNE,
     EUW,
@@ -95,7 +69,15 @@ export enum region_e{
     PBE
 }
 
-interface ErrorCode{
+function region_e_TO_endpointString(param: region_e) {
+    return REGIONS.endpointStrings[param];
+}
+
+function region_e_TO_string(param: region_e) {
+    return REGIONS.strings[param];
+}
+
+interface ErrorCode {
     code: number;
     message: string;
 }
@@ -118,7 +100,7 @@ export class API {
     private apiKeys: string[];
     private apiKey: string;
 
-    public constructor(apiKeys: string[]){
+    public constructor(apiKeys: string[]) {
         this.apiKeys = apiKeys;
         this.apiKey = apiKeys[0];
     }
@@ -137,42 +119,42 @@ export class API {
      * @param     {[type]}    data        body parameters
      * @param     {(JSON}     callback    callback function with formatted JSON
      */
-    public getJSON(url: string, method: string, data: any): Promise<any>{
+    public getJSON(url: string, method: string, data: any): Promise<any> {
         this.switchApiKey();
         return new Promise((success, fail) => {
             request(
                 {
-                url: url,
-                method: method,
-                headers: {
-                    "User-Agent": "Nodejs Server Request",
-                    "Accept-Charset": "ISO-8859-1, utf-8",
-                    "X-Riot-Token": this.apiKey
-                },
-                json: true,
-                body: data
-            }, (err: any, res: any, body: string) => {
-                if (res.statusCode == 200 || res.statusCode == 204) {
-                    try{
-                        success(JSON.parse(body));
-                    } catch (E){
-                        success(body);
+                    url: url,
+                    method: method,
+                    headers: {
+                        "User-Agent": "Nodejs Server Request",
+                        "Accept-Charset": "ISO-8859-1, utf-8",
+                        "X-Riot-Token": this.apiKey
+                    },
+                    json: true,
+                    body: data
+                }, (err: any, res: any, body: string) => {
+                    if (res.statusCode == 200 || res.statusCode == 204) {
+                        try {
+                            success(JSON.parse(body));
+                        } catch (E) {
+                            success(body);
+                        }
+                    } else if (res.statusCode == 429) {
+                        setTimeout(() => { this.getJSON(url, method, data).then(success); }, res["Retry-After"] * 1000);
+                    } else {
+                        fail({ code: res.statusCode, message: ERROR_CODES[res.statusCode] });
                     }
-                } else if (res.statusCode == 429){
-                    setTimeout(() => {this.getJSON(url, method, data).then(success); }, res["Retry-After"] * 1000);
-                } else {
-                    fail({code: res.statusCode, message: ERROR_CODES[res.statusCode]});
-                }
-            });
+                });
         });
     }
 
     public request(url: string, method: string, data: any, prop?: string): Promise<any> {
         return new Promise((success, fail) => {
             this.getJSON(url, method, data).then((data) => {
-                if(prop === null) {
+                if (prop === null) {
                     success();
-                } else if(prop === undefined) {
+                } else if (prop === undefined) {
                     success(data);
                 } else {
                     success(data[prop]);
@@ -205,7 +187,7 @@ export class API {
 /**
  * Tournament API
  */
-export class TournamentAPI extends API{
+export class TournamentAPI extends API {
 
 
     constructor(...apiKeys: string[]) {
@@ -230,7 +212,7 @@ export class TournamentAPI extends API{
      * @param     {string}                                               tournamentCode    Tournament Code
      * @param     {RiotGamesAPI.TournamentProvider.TournamentCodeDto}    callback          Tournament Infos
      */
-    public getTournamentByCode(tournamentCode: string): Promise<RiotGamesAPI.TournamentProvider.TournamentCodeDto>{
+    public getTournamentByCode(tournamentCode: string): Promise<RiotGamesAPI.TournamentProvider.TournamentCodeDto> {
         return this.request(TOURNAMENT_URL_1 + "code?tournamentCode=" + tournamentCode, "get", null);
     }
 
@@ -240,7 +222,7 @@ export class TournamentAPI extends API{
      * @param     {RiotGamesAPI.TournamentProvider.TournamentCodeUpdateParameters}    params            parameters to edit
      * @param     {(}                                                                 callback          callback if succes
      */
-    public editTournamentByCode(tournamentCode: string, params: RiotGamesAPI.TournamentProvider.TournamentCodeUpdateParameters): Promise<() => void>{
+    public editTournamentByCode(tournamentCode: string, params: RiotGamesAPI.TournamentProvider.TournamentCodeUpdateParameters): Promise<() => void> {
         return this.request(TOURNAMENT_URL_1 + "code/" + tournamentCode, "put", params, null);
     }
 
@@ -249,7 +231,7 @@ export class TournamentAPI extends API{
      * @param     {string}                                           tournamentCode    the tournament code to get the lobby events
      * @param     {RiotGamesAPI.TournamentProvider.LobbyEventDto}    callback          lobby events
      */
-    public getLobbyEventByCode(tournamentCode: string): Promise<RiotGamesAPI.TournamentProvider.LobbyEventDto>{
+    public getLobbyEventByCode(tournamentCode: string): Promise<RiotGamesAPI.TournamentProvider.LobbyEventDto> {
         return this.request(TOURNAMENT_URL_1 + "lobby/events/by-code/" + tournamentCode, "get", null);
     }
 
@@ -260,7 +242,7 @@ export class TournamentAPI extends API{
      * @param     {number}      callback    returns  the tounament provider ID
      */
     public registerProvider(region: region_e, url: string): Promise<number> {
-        return this.request(TOURNAMENT_URL_1 + "provider", "post", {"region": region_e_TO_string(region), "url": url});
+        return this.request(TOURNAMENT_URL_1 + "provider", "post", { "region": region_e_TO_string(region), "url": url });
     }
 
     /**
@@ -270,12 +252,12 @@ export class TournamentAPI extends API{
      * @param     {number}    callback      returns the tournament ID
      */
     public registerTournament(name: string, providerId: number): Promise<number> {
-        return this.request(TOURNAMENT_URL_1 + "tournament", "post", {"name": name, "providerId": providerId});
+        return this.request(TOURNAMENT_URL_1 + "tournament", "post", { "name": name, "providerId": providerId });
     }
     // ******************************************************************************* //
 }
 
-export class ClassicAPI extends API{
+export class ClassicAPI extends API {
     private region: region_e;
 
     /**
@@ -283,7 +265,7 @@ export class ClassicAPI extends API{
      * @param     {string[]}    ApiKeys    API Keys for the requests
      * @param     {region_e}    region     region where you want to send requests
      */
-    public constructor(apiKeys: string[], region: region_e){
+    public constructor(apiKeys: string[], region: region_e) {
         super(apiKeys);
         this.region = region;
     }
@@ -293,7 +275,7 @@ export class ClassicAPI extends API{
      * @param     {string}    unparsedURL    the URL to parse
      * @return    {string}                   the Parsed URL
      */
-    public parseURL(unparsedURL: string): string{
+    public parseURL(unparsedURL: string): string {
         let parsedURL = unparsedURL.replace(/{region}/g, region_e_TO_string(this.region));
         parsedURL = parsedURL.replace(/{endpoint}/g, region_e_TO_endpointString(this.region));
 
