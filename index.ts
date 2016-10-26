@@ -22,8 +22,11 @@ const GLOBAL_URL_1_2: string = "https://global.api.pvp.net/api/lol/static-data/{
 // Spectator
 const URL_SPECTATOR_1_0: string = "https://{region}.api.pvp.net/observer-mode/rest/";
 
-// Tournament ULRS
+// Tournament URLS
 const TOURNAMENT_URL_1: string = "https://global.api.pvp.net/tournament/public/v1/";
+
+// Shards URL
+const SHARDS_URL: string = "http://status.leagueoflegends.com/shards/";
 
 const REGIONS = {
     endpointStrings: [
@@ -612,7 +615,7 @@ export class ClassicAPI extends API {
      * @param     {RiotGamesAPI.LolStatus.Shard[]}    callback    data callback
      */
     public getStatus(): Promise<RiotGamesAPI.LolStatus.Shard[]> {
-        return this.request("http://status.leagueoflegends.com/shards", "get", null);
+        return this.request(SHARDS_URL, "get", null);
     }
 
     /**
@@ -621,7 +624,7 @@ export class ClassicAPI extends API {
      * @param     {RiotGamesAPI.LolStatus.Shard}    callback    data callback
      */
     public getStatusByRegion(region: region_e): Promise<RiotGamesAPI.LolStatus.Shard> {
-        return this.request("http://status.leagueoflegends.com/shards/" + region_e_TO_string(region), "get", null);
+        return this.request(SHARDS_URL + region_e_TO_string(region), "get", null);
     }
     // ******************************************************************************* //
 
