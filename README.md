@@ -62,7 +62,7 @@ getChampionMasteryBySummoner(summonerId: number);
 
 getChampionMasteryScore(summonerId: number);
 
-getTopChampionMastery(summonerId);
+getTopChampionMastery(summonerId: number);
 ```
 ##### current-game-v1.0
 ```javascript
