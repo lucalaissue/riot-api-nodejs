@@ -32,13 +32,13 @@ $ npm run build
 ```javascript
 var riotApi = require("riot-api-nodejs");
 
-var classicApi = new riotApi.ClassicApi(["API-KEY1", "API-KEY2"], riotApi.region_e.EUW);
+var ClassicAPI = new riotApi.ClassicAPI(["API-KEY1", "API-KEY2"], riotApi.region_e.EUW);
 
 var tournamentAPI = new riotApi.TournamentAPI("API_KEY1", "API_KEY2");
 
-classicApi.getSummonerByName("zafix").then((summoner) => {
-    return classicApi.getChampionMasteryScore(summoner.id);
-}).catch(funtion(err){
+ClassicAPI.getSummonerByName("zafix").then((summoner) => {
+    return ClassicAPI.getChampionMasteryScore(summoner.id);
+}).catch(function(err){
     //error
 });
 ```
@@ -199,7 +199,7 @@ registerTournament(name: string, providerId: number);
 ```javascript
 var riotApi = require("riot-api-nodejs");
 
-class myNewApi Extends riotApi.classicApi {
+class myNewApi Extends riotApi.ClassicAPI {
     // add your functions
 }
 
